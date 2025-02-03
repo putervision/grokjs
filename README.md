@@ -1,7 +1,9 @@
 # ngram-js
-JavaScript ngrams and supporting utils 
+
+JavaScript ngrams and supporting utils
 
 #
+
 # Ngram Class
 
 The `Ngram` class in JavaScript provides functionality similar to Python's N-gram models, allowing for predictive text generation and language modeling using up to 5-gram analysis. It leverages a custom `Counter` class for efficient counting of word sequences.
@@ -19,7 +21,7 @@ The `Ngram` class in JavaScript provides functionality similar to Python's N-gra
 To use the `Ngram` class:
 
 ```javascript
-const Ngram = require('./Ngram');
+const Ngram = require("./Ngram");
 const ngram = new Ngram(3); // Initialize with 3-grams
 
 // Learn from text
@@ -33,6 +35,7 @@ ngram.setup();
 ```
 
 #
+
 # Counter Class
 
 A JavaScript implementation of Python's `Counter` class for counting hashable items. This class can:
@@ -44,7 +47,8 @@ A JavaScript implementation of Python's `Counter` class for counting hashable it
 **Usage:**
 
 ```javascript
-const Counter = require('./Counter');
-const counter = new Counter(['a', 'b', 'a', 'c', 'b', 'b']);
-console.log(counter.get('b')); // 3
+const Counter = require("./Counter");
+const counter = new Counter(["a", "b", "a", "c", "b", "b"]);
+console.log(counter.get("b")); // 3
 console.log(counter.mostCommon()); // [['b', 3], ['a', 2], ['c', 1]]
+```
