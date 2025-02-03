@@ -4,7 +4,8 @@
   "description": "ngram class and utils for javascript",
   "scripts": {
     "test": "jest",
-    "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,css,scss,md}\""
+    "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,css,scss,md}\"",
+    "build": "browserify ./src/ngram/ngram.js -o ./dist/ngram-bundle.js"
   },
   "repository": {
     "type": "git",
@@ -17,7 +18,12 @@
   "author": "Lucas Armstrong",
   "license": "MIT",
   "devDependencies": {
+    "browserify": "^17.0.1",
     "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
     "prettier": "^3.4.2"
+  },
+  "jest": {
+    "testEnvironment": "jsdom"
   }
 }
