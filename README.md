@@ -1,7 +1,8 @@
 # ngram-js
 
 JavaScript ngrams and supporting utils
-
+- functional classes: Ngram, Counter
+- todo: Tokenizer, Normalizer, FrequencyDistribution, ProbabilityDistribution, LanguageModel, MarkovChain, Corpus, Vocaublary, Embedding, AttentionMechanism, EvaluationMetrics, InferenceEngine, FactServer
 #
 
 # Ngram Class
