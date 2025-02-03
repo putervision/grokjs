@@ -1,7 +1,7 @@
 # ngram-js
 JavaScript ngrams and supporting utils 
 
-
+#
 # Ngram Class
 
 The `Ngram` class in JavaScript provides functionality similar to Python's N-gram models, allowing for predictive text generation and language modeling using up to 5-gram analysis. It leverages a custom `Counter` class for efficient counting of word sequences.
@@ -30,8 +30,9 @@ let prediction = ngram.predictNextWord("Hello world"); // Returns an array of pr
 
 // Setup for real-time learning and prediction in your application
 ngram.setup();
+```
 
-
+#
 # Counter Class
 
 A JavaScript implementation of Python's `Counter` class for counting hashable items. This class can:
