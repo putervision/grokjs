@@ -10,11 +10,6 @@ class Ngram {
     // Initialize ngrams as an array of Maps, one for each n-gram level from 1 to maxN
     this.ngrams = new Array(this.maxN).fill(0).map(() => new Map());
 
-    // Bind methods to the class instance to maintain context in event handlers
-    this.inputHandler = this.inputHandler.bind(this);
-    this.blurHandler = this.blurHandler.bind(this);
-    this.keydownHandler = this.keydownHandler.bind(this);
-
     if (debug)
       console.log("Ngram constructor initialized with maxN:", this.maxN);
   }
@@ -99,97 +94,12 @@ class Ngram {
   }
 
   /**
-   * Handles input events to provide autocomplete suggestions.
-   * @param {Event} event - The input event
-   */
-  inputHandler(event) {
-    let input = event.target;
-    let text = input.value;
-    let lastSpace = text.lastIndexOf(" ");
-
-    if (lastSpace !== -1) {
-      let prefix = text.slice(lastSpace + 1);
-      // Predict next word based on the text before the last space
-      let suggestions = this.predictNextWord(text.slice(0, lastSpace + 1));
-      if (debug)
-        console.log(
-          "Input handler triggered with text:",
-          text,
-          "Prefix:",
-          prefix,
-          "Suggestions:",
-          suggestions,
-        );
-
-      if (suggestions.length > 0) {
-        // Find a suggestion that starts with the current prefix
-        let match = suggestions.find((suggestion) =>
-          suggestion.startsWith(prefix),
-        );
-        if (match) {
-          // Apply the autocomplete by modifying the input value
-          input.value = text.slice(0, lastSpace + 1) + match;
-          // Set the cursor position
-          event.target.setSelectionRange(
-            lastSpace + 1 + prefix.length,
-            input.value.length,
-          );
-          // Prevent further typing
-          event.target.preventDefault();
-          if (debug) console.log("Autocomplete applied:", input.value);
-        }
-      }
-    }
-  }
-
-  /**
    * Learns from the provided text by updating the model.
    * @param {string} text - The text to learn from
    */
   learn(text) {
     this.updateModel(this.tokenize(text));
     if (debug) console.log("Learned from text:", text);
-  }
-
-  /**
-   * Handles blur events to learn from the input when focus is lost.
-   * @param {Event} event - The blur event
-   */
-  blurHandler(event) {
-    let text = event.target.value;
-    if (text.trim()) {
-      this.learn(text);
-      if (debug) console.log("Blur handler learned from text:", text);
-    }
-  }
-
-  /**
-   * Handles keydown events, learning from the input when Enter is pressed.
-   * @param {Event} event - The keydown event
-   */
-  keydownHandler(event) {
-    if (event.key === "Enter") {
-      let text = event.target.value;
-      if (text.trim()) {
-        this.learn(text);
-        if (debug)
-          console.log("Keydown handler learned from text on Enter:", text);
-      }
-    }
-  }
-
-  /**
-   * Sets up event listeners on text inputs and textareas for learning and prediction.
-   */
-  setup() {
-    document
-      .querySelectorAll('input[type="text"], textarea')
-      .forEach((input) => {
-        input.addEventListener("input", this.inputHandler);
-        input.addEventListener("blur", this.blurHandler);
-        input.addEventListener("keydown", this.keydownHandler);
-        if (debug) console.log("Event listeners added to:", input);
-      });
   }
 }
 
