@@ -1,15 +1,13 @@
-# ngram-js
+# grokjs
 
-JavaScript ngrams and supporting utils
-
+A JavaScript implementation of a basic Language Model (LM) and utilities designed to facilitate natural language processing tasks, inspired by advanced models like xAI's Grok. (not affiliated with xAI)
 - functional classes: LanguageModel, Ngram, Counter
 - todo: Tokenizer, Normalizer, FrequencyDistribution, ProbabilityDistribution, MarkovChain, Corpus, Vocaublary, Embedding, AttentionMechanism, EvaluationMetrics, InferenceEngine, FactServer
+
 
 #
 
 # LanguageModel Class
-
-A JavaScript implementation of a basic Language Model (LM) designed to facilitate natural language processing tasks, inspired by advanced models like xAI's Grok.
 
 ## Features
 
