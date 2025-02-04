@@ -1,7 +1,7 @@
 {
-  "name": "ngram",
-  "version": "1.0.0",
-  "description": "ngram class and utils for javascript",
+  "name": "@putervision/grokjs",
+  "version": "1.1.1",
+  "description": "A JavaScript implementation of a basic Language Model (LM) and utilities designed to facilitate natural language processing tasks, inspired by advanced models like xAI's Grok. (not affiliated with xAI)",
   "scripts": {
     "test": "jest",
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,css,scss,md}\"",
@@ -9,13 +9,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/LucasArmstrong/ngram-js"
+    "url": "https://github.com/putervision/grokjs"
   },
   "keywords": [
     "ngram",
-    "javascript"
+    "javascript",
+    "language model",
+    "llm"
   ],
-  "author": "Lucas Armstrong",
+  "author": "Puter Vision",
   "license": "MIT",
   "devDependencies": {
     "browserify": "^17.0.1",
