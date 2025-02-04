@@ -17,7 +17,7 @@
     "language model",
     "llm"
   ],
-  "author": "Puter Vision",
+  "author": "PuterVision",
   "license": "MIT",
   "devDependencies": {
     "browserify": "^17.0.1",
