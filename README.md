@@ -62,7 +62,6 @@ The `Ngram` class in JavaScript provides functionality similar to Python's N-gra
 - **Model Update**: Updates the n-gram model with new text data.
 - **Prediction**: Predicts the next word based on the given prefix, using n-grams from 1 to `maxN`.
 - **Learning**: Automatically learns from user input through event handlers (`input`, `blur`, `keydown`).
-- **Autocomplete**: Provides real-time autocomplete suggestions in text inputs or textareas.
 
 ## Usage
 
@@ -77,9 +76,6 @@ ngram.learn("Hello world how are you");
 
 // Predict next word
 let prediction = ngram.predictNextWord("Hello world"); // Returns an array of predictions
-
-// Setup for real-time learning and prediction in your application
-ngram.setup();
 ```
 
 #
