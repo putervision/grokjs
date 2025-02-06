@@ -1,4 +1,5 @@
 const Counter = require("../counter/counter");
+const Tokenizer = require("../tokenizer/tokenizer");
 
 const debug = true;
 
@@ -9,6 +10,8 @@ class Ngram {
 
     // Initialize ngrams as an array of Maps, one for each n-gram level from 1 to maxN
     this.ngrams = new Array(this.maxN).fill(0).map(() => new Map());
+
+    this.tokenizer = new Tokenizer();
 
     if (debug)
       console.log("Ngram constructor initialized with maxN:", this.maxN);
@@ -22,12 +25,14 @@ class Ngram {
   tokenize(text) {
     // Convert text to lowercase, trim whitespace, remove non-word characters except apostrophes,
     //  and split on whitespace
-    let tokens = text
-      .toLowerCase()
-      .trim()
-      .replace(/[^\w\s']|_/g, "")
-      .split(/\s+/);
-    // Check if the result is empty or falsy after tokenization
+    // let tokens = text
+    //   .toLowerCase()
+    //   .trim()
+    //   .replace(/[^\w\s']|_/g, "")
+    //   .split(/\s+/);
+    // // Check if the result is empty or falsy after tokenization
+
+    const tokens = this.tokenizer.tokenize(text);
     if (!tokens || tokens == "") return [];
     if (debug) console.log("Tokenized text:", tokens);
     return tokens;

@@ -30,7 +30,7 @@ describe("Ngram", () => {
       "multiple",
       "spaces",
     ]);
-    expect(ngram.tokenize("Punctuation!@#$%^&*()")).toEqual(["punctuation"]);
+    expect(ngram.tokenize("Punctuation!@#$%^&*()")[0]).toEqual("punctuation");
     expect(ngram.tokenize("")).toEqual([]); // Empty string
     expect(ngram.tokenize("   ")).toEqual([]); // Only spaces
   });

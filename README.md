@@ -4,11 +4,12 @@ A JavaScript implementation of a basic Language Model (LM) and utilities designe
 
 - functional classes: LanguageModel, Ngram, Counter
 - todo: Tokenizer, Normalizer, FrequencyDistribution, ProbabilityDistribution, MarkovChain, Corpus, Vocaublary, Embedding, AttentionMechanism, EvaluationMetrics, InferenceEngine, FactServer
+- contact: code@grokjs.com
 
 #
 
 # LanguageModel Class
-
+This class aims to build a foundation for more complex NLP applications, providing a starting point for developers looking to explore or implement language modeling in JavaScript.
 ## Features
 
 - **Training**: Enables the model to learn linguistic patterns from provided textual data. Utilizes n-gram structures to capture word sequences and their frequencies, allowing the model to understand and generate language based on observed patterns.
@@ -35,7 +36,6 @@ A JavaScript implementation of a basic Language Model (LM) and utilities designe
 
 - **Language Adaptation** (not yet complete): Provides basic functionality to adapt the model's behavior or parameters to different languages, allowing for some level of multilingual capability or adjustment for language-specific nuances.
 
-This class aims to build a foundation for more complex NLP applications, providing a starting point for developers looking to explore or implement language modeling in JavaScript.
 
 example usage:
 
@@ -46,6 +46,44 @@ const lm = new LanguageModel();
 lm.train("Hello world, how are you?");
 console.log(lm.predict("Hello", 1)); // ['world']
 console.log(lm.generateText("Hello", 3)); // 'Hello world how'
+```
+
+#
+# Tokenizer Class
+
+A versatile JavaScript class for tokenizing text, designed with language sensitivity and customization in mind.
+
+## Features
+
+- **Language Detection**: Uses `franc-cjs` to detect the language of the input text, applying language-specific tokenization rules for English, German, and Japanese.
+- **Customizable Options**: 
+  - `lowerCase`: Convert text to lowercase (default: true).
+  - `preserveCase`: Preserve the original case of the text (default: false).
+  - `handleContractions`: Expand contractions into their full forms (default: true).
+  - `addSpecialTokens`: Add start (`<s>`) and end (`</s>`) of sentence markers (default: false).
+- **Contraction Handling**: Expands common English contractions to improve semantic clarity.
+- **Special Token Management**: Ability to add and remove special tokens for sentence boundary awareness.
+- **Robust Tokenization**: Comprehensive regex for tokenizing words, punctuation, numbers, dates, and other text elements.
+
+## Usage
+
+To use the `Tokenizer` class:
+
+```javascript
+const Tokenizer = require('./Tokenizer');
+
+// Initialize with default options
+const tokenizer = new Tokenizer();
+
+// Tokenize some text
+const text = "It's a nice day, isn't it?";
+const tokens = tokenizer.tokenize(text);
+console.log(tokens); // Output will depend on the options set
+
+// Example with custom options
+const customTokenizer = new Tokenizer({ preserveCase: true, handleContractions: false });
+const customTokens = customTokenizer.tokenize(text);
+console.log(customTokens); // ['it', 'is', 'a'...]
 ```
 
 #

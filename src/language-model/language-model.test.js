@@ -109,7 +109,7 @@ describe("LanguageModel", () => {
     languageModel.train("hello world how are you");
     let prob = languageModel.getProbability("world", "hello");
     expect(typeof prob).toBe("number");
-    expect(prob).toBeGreaterThanOrEqual(0);
+    expect(prob).toBeGreaterThan(0);
     expect(prob).toBeLessThanOrEqual(1);
   });
 
