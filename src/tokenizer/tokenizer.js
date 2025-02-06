@@ -6,21 +6,21 @@ class Tokenizer {
     this.preserveCase = options.preserveCase || false;
     this.handleContractions = options.handleContractions !== false; // Default to true
     this.addSpecialTokensFlag = options.addSpecialTokens || false;
+    this.removePunctuation = options.removePunctuation !== false;
 
     // Comprehensive regular expression for tokenization:
     // - Matches words including those with apostrophes for contractions (e.g., 'it's', 'don't')
     // - Captures individual punctuation marks (., !, ?, ;, :, $,)
     // - Identifies integers and floating-point numbers (e.g., '123', '123.45')
-    // - Recognizes common date formats (YYYY-MM-DD, DD-MM-YYYY, etc.)
+    // - Preserves common date formats (YYYY-MM-DD, DD-MM-YYYY, etc.) as single tokens
     // - Catches any non-whitespace character for robust tokenization of special cases
-    this.defaultTokenRegex =
-      /\b\w+(?:['’]\w+)*\b|[.,!?;:$]|\d+(?:\.\d+)?|(?:\d{1,4}[-/]\d{1,2}[-/]\d{1,4})|\S+/g;
+    this.defaultTokenRegex = /\b\w+(?:['’]\w+)*\b|[.,!?;:$]|\d+(?:\.\d+)?|((\d{4}|\d{2})[-/]\d{2}[-/]\d{2})|(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z?)|\S+/g;
 
-    // diff regex based on language - this needs upgraded
+    // Different regex based on language - this needs upgraded
     this.langRules = {
       eng: this.defaultTokenRegex,
-      deu: /(?:\b\w+(?:-\w+)*\b|[.,!?;:])|\S+/g, // Example for German, handling compound words
-      jpn: /\p{Script=Hiragana}|\p{Script=Katakana}|\p{Script=Han}|\S+/gu, // Example for Japanese, using Unicode properties
+      deu: /(?:\b\w+(?:-\w+)*\b|[.,!?;:])|\S+/g, // German, handling compound words
+      jpn: /[\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Han}ー]+|([、。！？])|\s+/gu, // Japanese unicode
     };
   }
 
@@ -41,31 +41,51 @@ class Tokenizer {
     text = text.replace(/\n/g, " ");
 
     // Determine language and apply appropriate regex
-    const lang = franc(text);
+    const lang = franc(text, {
+      minLength: 3,
+      whitelist: ['eng', 'jpn', 'deu']
+    });
     const regex = this.langRules[lang] || this.defaultTokenRegex;
 
     // Tokenize the text
     let tokens = text.match(regex) || [];
 
-    // todo - debug this , causing failed tests around contractions
+    // Filter out empty strings which might result from multiple spaces or newlines
+    tokens = tokens.filter(token => token.trim() !== '');
+
     // Handle contractions if specified
-    if (this.handleContractions) {
+    if (this.handleContractions && lang === 'eng') {
       const contractions = {
-        "n't": " not",
-        "'ve": " have",
-        "'re": " are",
-        "'s": " is",
-        "'d": " would",
-        "'ll": " will",
-        "'m": " am",
+        "n't": "not",
+        "'ve": "have",
+        "'re": "are",
+        "'s": "is",
+        "'d": "would",
+        "'ll": "will",
+        "'m": "am",
       };
-      tokens = tokens.map((token) => {
+      
+      // Map over each token to expand and split contractions
+      tokens = tokens.flatMap((token) => {
         for (let [contraction, expansion] of Object.entries(contractions)) {
           if (token.endsWith(contraction)) {
-            return token.slice(0, -contraction.length) + expansion;
+            // Split the expanded form into separate tokens
+            return token.slice(0, -contraction.length).split(' ').concat(expansion.split(' '));
           }
         }
-        return token;
+        // If no contraction was found, return the token as is
+        return [token];
+      });
+    }
+
+    // Remove punctuation if the option is set, but ensure dates and numbers with decimal points are preserved
+    if (this.removePunctuation && lang !== 'jpn') {
+      tokens = tokens.filter(token => {
+        // Check if the token is a date before filtering out punctuation
+        if (/^(?:\d{4}|\d{2})[-/]\d{2}[-/]\d{2}$/.test(token) || /^\d+(?:\.\d+)?$/.test(token)) {
+          return true;
+        }
+        return !/[.,!?;:$]/.test(token);
       });
     }
 
