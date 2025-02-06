@@ -11,13 +11,7 @@ describe("Tokenizer", () => {
   test("Basic tokenization", () => {
     const text = "Hello, world! How are you?";
     const tokens = tokenizer.tokenize(text);
-    expect(tokens).toEqual([
-      "hello",
-      "world",
-      "how",
-      "are",
-      "you"
-    ]);
+    expect(tokens).toEqual(["hello", "world", "how", "are", "you"]);
   });
 
   // Test handling of contractions
@@ -38,7 +32,7 @@ describe("Tokenizer", () => {
       "day",
       "is",
       "not",
-      "it"
+      "it",
     ]);
   });
 
@@ -55,7 +49,7 @@ describe("Tokenizer", () => {
       "over",
       "the",
       "lazy",
-      "dog"
+      "dog",
     ]);
   });
 
@@ -69,7 +63,7 @@ describe("Tokenizer", () => {
       "ein",
       "test-satz",
       "mit",
-      "bindestrichen"
+      "bindestrichen",
     ]);
   });
 
@@ -120,7 +114,7 @@ describe("Tokenizer", () => {
       "price",
       "is",
       "10",
-      "99"
+      "99",
     ]);
   });
 

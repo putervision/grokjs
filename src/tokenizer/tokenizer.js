@@ -14,7 +14,8 @@ class Tokenizer {
     // - Identifies integers and floating-point numbers (e.g., '123', '123.45')
     // - Preserves common date formats (YYYY-MM-DD, DD-MM-YYYY, etc.) as single tokens
     // - Catches any non-whitespace character for robust tokenization of special cases
-    this.defaultTokenRegex = /\b\w+(?:['’]\w+)*\b|[.,!?;:$]|\d+(?:\.\d+)?|((\d{4}|\d{2})[-/]\d{2}[-/]\d{2})|(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z?)|\S+/g;
+    this.defaultTokenRegex =
+      /\b\w+(?:['’]\w+)*\b|[.,!?;:$]|\d+(?:\.\d+)?|((\d{4}|\d{2})[-/]\d{2}[-/]\d{2})|(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z?)|\S+/g;
 
     // Different regex based on language - this needs upgraded
     this.langRules = {
@@ -43,7 +44,7 @@ class Tokenizer {
     // Determine language and apply appropriate regex
     const lang = franc(text, {
       minLength: 3,
-      whitelist: ['eng', 'jpn', 'deu']
+      whitelist: ["eng", "jpn", "deu"],
     });
     const regex = this.langRules[lang] || this.defaultTokenRegex;
 
@@ -51,10 +52,10 @@ class Tokenizer {
     let tokens = text.match(regex) || [];
 
     // Filter out empty strings which might result from multiple spaces or newlines
-    tokens = tokens.filter(token => token.trim() !== '');
+    tokens = tokens.filter((token) => token.trim() !== "");
 
     // Handle contractions if specified
-    if (this.handleContractions && lang === 'eng') {
+    if (this.handleContractions && lang === "eng") {
       const contractions = {
         "n't": "not",
         "'ve": "have",
@@ -64,13 +65,16 @@ class Tokenizer {
         "'ll": "will",
         "'m": "am",
       };
-      
+
       // Map over each token to expand and split contractions
       tokens = tokens.flatMap((token) => {
         for (let [contraction, expansion] of Object.entries(contractions)) {
           if (token.endsWith(contraction)) {
             // Split the expanded form into separate tokens
-            return token.slice(0, -contraction.length).split(' ').concat(expansion.split(' '));
+            return token
+              .slice(0, -contraction.length)
+              .split(" ")
+              .concat(expansion.split(" "));
           }
         }
         // If no contraction was found, return the token as is
@@ -79,10 +83,13 @@ class Tokenizer {
     }
 
     // Remove punctuation if the option is set, but ensure dates and numbers with decimal points are preserved
-    if (this.removePunctuation && lang !== 'jpn') {
-      tokens = tokens.filter(token => {
+    if (this.removePunctuation && lang !== "jpn") {
+      tokens = tokens.filter((token) => {
         // Check if the token is a date before filtering out punctuation
-        if (/^(?:\d{4}|\d{2})[-/]\d{2}[-/]\d{2}$/.test(token) || /^\d+(?:\.\d+)?$/.test(token)) {
+        if (
+          /^(?:\d{4}|\d{2})[-/]\d{2}[-/]\d{2}$/.test(token) ||
+          /^\d+(?:\.\d+)?$/.test(token)
+        ) {
           return true;
         }
         return !/[.,!?;:$]/.test(token);
