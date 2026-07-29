@@ -1,8 +1,8 @@
-
 /node_modules
-/dist
-.state-memory-mcp
-
-# vision-memory-mcp local database
+.state-memory-mcp/
 .vision-memory-mcp/
 .env
+*.log
+coverage/
+.DS_Store
+dist
