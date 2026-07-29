@@ -1,0 +1,19 @@
+# Test files
+*.test.js
+*.spec.js
+test/
+src/test/
+
+# Coverage
+coverage/
+.nyc_output/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db

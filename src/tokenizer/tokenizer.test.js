@@ -108,13 +108,11 @@ describe("Tokenizer", () => {
     expect(tokens).toEqual([
       "today",
       "is",
-      // "2023-02-04", // todo: debug the regex to maintain date formats through tokenization
-      "2023", // this should be "2023-02-04"
+      "2023-02-04",
       "the",
       "price",
       "is",
-      "10",
-      "99",
+      "10.99",
     ]);
   });
 

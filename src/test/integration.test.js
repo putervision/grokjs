@@ -131,13 +131,9 @@ describe("Integrated Test Suite for Counter, LanguageModel, and Ngram", () => {
     expect(explanation).toContain("hello world");
   });
 
-  // Test language adaptation
   test("Language adaptation", () => {
-    jest.spyOn(console, "log");
     languageModel.adaptToLanguage("Spanish");
-    expect(console.log).toHaveBeenCalledWith(
-      "Adapting model to language: Spanish",
-    );
+    expect(languageModel.context.language).toBe("Spanish");
   });
 
   // Test error handling

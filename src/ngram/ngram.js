@@ -1,19 +1,18 @@
 const Counter = require("../counter/counter");
 const Tokenizer = require("../tokenizer/tokenizer");
 
-const debug = true;
-
 class Ngram {
-  constructor(maxN = 5) {
+  constructor(maxN = 5, options = {}) {
     // Limit the maximum n-gram size to 5
     this.maxN = Math.min(maxN, 5);
+    this.debug = options.debug || false;
 
     // Initialize ngrams as an array of Maps, one for each n-gram level from 1 to maxN
     this.ngrams = new Array(this.maxN).fill(0).map(() => new Map());
 
     this.tokenizer = new Tokenizer();
 
-    if (debug)
+    if (this.debug)
       console.log("Ngram constructor initialized with maxN:", this.maxN);
   }
 
@@ -34,7 +33,7 @@ class Ngram {
 
     const tokens = this.tokenizer.tokenize(text);
     if (!tokens || tokens == "") return [];
-    if (debug) console.log("Tokenized text:", tokens);
+    if (this.debug) console.log("Tokenized text:", tokens);
     return tokens;
   }
 
@@ -43,7 +42,7 @@ class Ngram {
    * @param {string[]} tokens - Array of tokens to update the model with
    */
   updateModel(tokens) {
-    if (debug) console.log("Updating model with tokens:", tokens);
+    if (this.debug) console.log("Updating model with tokens:", tokens);
     for (let n = 1; n <= this.maxN; n++) {
       for (let i = 0; i <= tokens.length - n; i++) {
         // Create the n-gram key by joining n tokens
@@ -58,7 +57,7 @@ class Ngram {
 
         // Increment the count for the next word following this n-gram
         this.ngrams[n - 1].get(ngram).increment(nextWord);
-        if (debug)
+        if (this.debug)
           console.log(
             `Updated ${n}-gram for "${ngram}" with next word "${nextWord}"`,
           );
@@ -73,7 +72,7 @@ class Ngram {
    */
   predictNextWord(prefix) {
     let tokens = this.tokenize(prefix);
-    if (debug)
+    if (this.debug)
       console.log(
         "Predicting next word for prefix:",
         prefix,
@@ -89,12 +88,12 @@ class Ngram {
       if (counter) {
         // Sort predictions by frequency and extract the words
         let sortedWords = counter.mostCommon().map(([word]) => word);
-        if (debug)
+        if (this.debug)
           console.log(`Found ${n}-gram match for "${ngram}":`, sortedWords);
         return sortedWords;
       }
     }
-    if (debug) console.log("No n-gram match found for prefix:", prefix);
+    if (this.debug) console.log("No n-gram match found for prefix:", prefix);
     return [];
   }
 
@@ -104,7 +103,7 @@ class Ngram {
    */
   learn(text) {
     this.updateModel(this.tokenize(text));
-    if (debug) console.log("Learned from text:", text);
+    if (this.debug) console.log("Learned from text:", text);
   }
 }
 

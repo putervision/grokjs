@@ -1,139 +1,514 @@
-# grokjs
+# @putervision/grokjs
 
-A JavaScript implementation of a basic Language Model (LM) and utilities designed to facilitate natural language processing tasks, inspired by advanced models like xAI's Grok. (not affiliated with xAI)
+[![npm version](https://img.shields.io/npm/v/@putervision/grokjs.svg)](https://www.npmjs.com/package/@putervision/grokjs)
+[![license](https://img.shields.io/npm/l/@putervision/grokjs.svg)](LICENSE)
+[![tests](https://img.shields.io/badge/tests-164%20passed-brightgreen.svg)](#testing)
 
-- functional classes: LanguageModel, Tokenizer, Ngram, Counter
-- todo: Normalizer, FrequencyDistribution, ProbabilityDistribution, MarkovChain, Corpus, Vocabulary, Embedding, AttentionMechanism, EvaluationMetrics, InferenceEngine, FactServer
-- contact: code@grokjs.com
+> A high-performance, modular JavaScript & TypeScript implementation of Language Models (LMs), N-gram text generators, and Natural Language Processing (NLP) tools — inspired by state-of-the-art language architectures like xAI's Grok. _(Not affiliated with xAI)_.
 
-#
+---
 
-# LanguageModel Class
+## Table of Contents
 
-This class aims to build a foundation for more complex NLP applications, providing a starting point for developers looking to explore or implement language modeling in JavaScript.
+- [Overview & Architecture](#overview--architecture)
+- [Installation](#installation)
+- [Module Summary (16 Modular Classes)](#module-summary-16-modular-classes)
+- [Quick Start](#quick-start)
+- [Class References & Detailed API](#class-references--detailed-api)
+  - [1. LanguageModel](#1-languagemodel)
+  - [2. Tokenizer](#2-tokenizer)
+  - [3. Ngram](#3-ngram)
+  - [4. Counter](#4-counter)
+  - [5. Normalizer](#5-normalizer)
+  - [6. Vocabulary](#6-vocabulary)
+  - [7. FrequencyDistribution](#7-frequencydistribution)
+  - [8. ProbabilityDistribution](#8-probabilitydistribution)
+  - [9. MarkovChain](#9-markovchain)
+  - [10. Corpus](#10-corpus)
+  - [11. Embedding](#11-embedding)
+  - [12. AttentionMechanism](#12-attentionmechanism)
+  - [13. EvaluationMetrics](#13-evaluationmetrics)
+  - [14. InferenceEngine](#14-inferenceengine)
+  - [15. FactServer](#15-factserver)
+  - [16. FormAutocompleteEngine](#16-formautocompleteengine)
+- [TypeScript Support](#typescript-support)
+- [Model Serialization](#model-serialization)
+- [Interactive Documentation Website](#interactive-documentation-website)
+- [Testing & Building](#testing--building)
+- [Requirements](#requirements)
+- [Security](#security)
+- [Changelog](#changelog)
+- [Code of Conduct](#code-of-conduct)
+- [License](#license)
 
-## Features
+---
 
-- **Training**: Enables the model to learn linguistic patterns from provided textual data. Utilizes n-gram structures to capture word sequences and their frequencies, allowing the model to understand and generate language based on observed patterns.
+## Overview & Architecture
 
-- **Prediction**: Predicts the next word or sequence given a context or prefix. This method leverages n-gram data to suggest multiple possible continuations, with options to limit the number of predictions returned.
+`@putervision/grokjs` is designed to provide developers with zero-dependency (or minimal dependency) client-side and server-side NLP capabilities in pure JavaScript. It equips Node.js and browser applications with fast text generation, tokenization, n-gram probability distributions, semantic word embeddings, attention visualization, and RAG fact injection.
 
-- **Text Generation**: Generates coherent text starting from a given sequence. The length of the generated text can be configured, and it uses the learned patterns to create contextually relevant continuations, simulating a conversation or narrative flow.
+```
+                  ┌──────────────────────────────────────────────┐
+                  │                 LanguageModel                │
+                  └──────┬────────────────────┬──────────────────┘
+                         │                    │
+          ┌──────────────┴───────┐   ┌────────┴──────────────┐
+          │     InferenceEngine  │   │   AttentionMechanism  │
+          └──────────────┬───────┘   └────────┬──────────────┘
+                         │                    │
+   ┌─────────────────────┼────────────────────┼─────────────────────┐
+   │                     │                    │                     │
+┌──┴───────┐   ┌─────────┴──────────┐   ┌─────┴──────┐    ┌─────────┴─────────┐
+│Tokenizer │   │ProbabilityDistro   │   │ Embedding  │    │EvaluationMetrics  │
+└──┬───────┘   └─────────┬──────────┘   └────────────┘    └───────────────────┘
+   │                     │
+┌──┴────────┐  ┌─────────┴──────────┐
+│Normalizer │  │FrequencyDistro     │
+└───────────┘  └─────────┬──────────┘
+                         │
+                   ┌─────┴──────┐
+                   │   Counter  │
+                   └────────────┘
+```
 
-- **Context Management**: Sets or updates the context which might influence the model's predictions. This can simulate different conversational states or writing focus areas, enhancing the relevance of predictions based on interactions or specified topics.
+---
 
-- **Vocabulary Handling**: Manages the vocabulary of the model by adding new words during training and providing methods to retrieve the vocabulary or its size. This gives insights into the model's lexical scope and aids in understanding its capabilities.
+## Installation
 
-- **Model Persistence**: Includes functionality to save the model's current state to a file or load a previously saved state. This ensures that the model's learned knowledge can be preserved, shared, or continued from where it left off.
+```bash
+npm install @putervision/grokjs
+```
 
-- **Evaluation**: Performs basic performance evaluation using metrics like perplexity to gauge how well the model predicts unseen data. Additionally, it includes metrics such as BLEU score for text similarity, accuracy for prediction correctness, and F1 score for classification tasks, providing a broader assessment of model performance.
+Or run browser bundle directly:
 
-- **Fine-Tuning**: Simulates the process of fine-tuning by adjusting the frequency counts of n-grams based on new data with a specified learning rate. This allows the model to adapt to new patterns or domains without losing its general knowledge, akin to transfer learning in neural networks.
+```html
+<script src="node_modules/@putervision/grokjs/dist/grokjs.bundle.js"></script>
+<script>
+  const { LanguageModel, InferenceEngine } = GrokJS;
+  const lm = new LanguageModel();
+  lm.train("Hello world! GrokJS enables fast browser language modeling.");
+  console.log(lm.generateText("Hello", 5));
+</script>
+```
 
-- **Embeddings**: Provides simulated embeddings for words based on their frequency in different n-gram contexts. These embeddings can be used for semantic similarity tasks or to enhance model interpretability.
+---
 
-- **Attention Mechanism**: Simulates attention by calculating weights for parts of the input based on n-gram frequencies. This helps in understanding which parts of the input text the model focuses on when making predictions, mimicking the concept of attention in neural networks.
+## Module Summary (16 Modular Classes)
 
-- **Explanation**: Offers explanations for predictions by detailing how the context or n-gram frequencies led to the model's output, enhancing the interpretability of the model's decisions.
+| Class                     | Category        | Description                                                                          |
+| ------------------------- | --------------- | ------------------------------------------------------------------------------------ |
+| `LanguageModel`           | Core Engine     | Primary facade for training, text generation, serialization, and context management. |
+| `Tokenizer`               | Processing      | Multilingual regex tokenization with date, timestamp, and contraction handling.      |
+| `Ngram`                   | Core Engine     | Efficient N-gram model up to 5-grams using hash maps and counters.                   |
+| `Counter`                 | Math / Data     | High-performance item frequency counter (Python `collections.Counter` port).         |
+| `Normalizer`              | Preprocessing   | Accent stripping, NFKC unicode cleaning, lowercasing, and whitespace collapse.       |
+| `Vocabulary`              | Data Struct     | Token-to-ID bidirectional dictionary with `<unk>`, `<s>`, `</s>`, `<pad>` handling.  |
+| `FrequencyDistribution`   | Distributions   | Conditional and joint N-gram frequency counting per context.                         |
+| `ProbabilityDistribution` | Distributions   | MLE, Laplace (Add-k) smoothing, Stupid Backoff, and softmax temperature sampling.    |
+| `MarkovChain`             | Sequence Gen    | N-th order Markov chain sequence generator and state transition matrix.              |
+| `Corpus`                  | Processing      | Multi-document dataset loader, sentence extractor, TTR stats, and train/test splits. |
+| `Embedding`               | Vector Space    | Co-occurrence word vector space representations, cosine similarity, and vector math. |
+| `AttentionMechanism`      | Visualization   | Self-attention weights, sequence focus scoring, and 2D N x N heatmap matrix.         |
+| `EvaluationMetrics`       | Benchmark       | Perplexity, BLEU (with brevity penalty), ROUGE-L, F1 Score, and Accuracy.            |
+| `InferenceEngine`         | Generation      | Greedy, Temperature, Top-K, Top-P (nucleus), Repetition Penalty, and Beam Search.    |
+| `FactServer`              | RAG / Knowledge | Key-value fact store and Retrieval-Augmented Generation (RAG) prompt injection.      |
+| `FormAutocompleteEngine`  | Autocomplete    | Self-learning DOM form autocomplete engine with continuous localStorage persistence.  |
 
-- **Language Adaptation** (not yet complete): Provides basic functionality to adapt the model's behavior or parameters to different languages, allowing for some level of multilingual capability or adjustment for language-specific nuances.
+---
 
-example usage:
+## Quick Start
 
 ```javascript
-const LanguageModel = require("./LanguageModel");
+const {
+  LanguageModel,
+  InferenceEngine,
+  FactServer,
+} = require("@putervision/grokjs");
+
+// 1. Initialize Language Model
 const lm = new LanguageModel();
 
-lm.train("Hello world, how are you?");
-console.log(lm.predict("Hello", 1)); // ['world']
-console.log(lm.generateText("Hello", 3)); // 'Hello world how'
-```
+// 2. Train on sample corpus
+lm.train(
+  "GrokJS is an open source JavaScript library for natural language processing. " +
+    "It supports n-gram language modeling, text generation, and retrieval augmented generation.",
+);
 
-#
+// 3. Predict next word
+console.log("Prediction for 'grokjs is':", lm.predict("grokjs is", 3));
 
-# Tokenizer Class
-
-A versatile JavaScript class for tokenizing text, designed with language sensitivity and customization in mind.
-
-## Features
-
-- **Language Detection**: Uses `franc-cjs` to detect the language of the input text, applying language-specific tokenization rules for English, German, and Japanese.
-- **Customizable Options**:
-  - `lowerCase`: Convert text to lowercase (default: true).
-  - `preserveCase`: Preserve the original case of the text (default: false).
-  - `handleContractions`: Expand contractions into their full forms (default: true).
-  - `addSpecialTokens`: Add start (`<s>`) and end (`</s>`) of sentence markers (default: false).
-- **Contraction Handling**: Expands common English contractions to improve semantic clarity.
-- **Special Token Management**: Ability to add and remove special tokens for sentence boundary awareness.
-- **Robust Tokenization**: Comprehensive regex for tokenizing words, punctuation, numbers, dates, and other text elements.
-
-## Usage
-
-To use the `Tokenizer` class:
-
-```javascript
-const Tokenizer = require("./Tokenizer");
-
-// Initialize with default options
-const tokenizer = new Tokenizer();
-
-// Tokenize some text
-const text = "It's a nice day, isn't it?";
-const tokens = tokenizer.tokenize(text);
-console.log(tokens); // Output will depend on the options set
-
-// Example with custom options
-const customTokenizer = new Tokenizer({
-  preserveCase: true,
-  handleContractions: false,
+// 4. Generate text with nucleus (top-p) sampling and temperature
+const generated = lm.generateText("grokjs is", 10, {
+  temperature: 0.8,
+  topP: 0.9,
+  repetitionPenalty: 1.2,
 });
-const customTokens = customTokenizer.tokenize(text);
-console.log(customTokens); // ['it', 'is', 'a'...]
+console.log("Generated:", generated);
+
+// 5. Use Fact Server for RAG Prompt Injection
+const factServer = new FactServer();
+factServer.addFact("library", "GrokJS Version", "1.2.0");
+factServer.addFact("author", "Created By", "PuterVision");
+
+const prompt = "Tell me about GrokJS Version and author.";
+const augmentedPrompt = factServer.augmentPrompt(prompt);
+console.log("Augmented RAG Prompt:", augmentedPrompt);
 ```
 
-#
+---
 
-# Ngram Class
+## Class References & Detailed API
 
-The `Ngram` class in JavaScript provides functionality similar to Python's N-gram models, allowing for predictive text generation and language modeling using up to 5-gram analysis. It leverages a custom `Counter` class for efficient counting of word sequences.
+### 1. LanguageModel
 
-## Features
+The primary facade class wrapping `Ngram`, `InferenceEngine`, and `EvaluationMetrics`.
 
-- **Tokenization**: Converts text into tokens, handling punctuation by removing it while preserving apostrophes.
-- **Model Update**: Updates the n-gram model with new text data.
-- **Prediction**: Predicts the next word based on the given prefix, using n-grams from 1 to `maxN`.
-- **Learning**: Automatically learns from user input through event handlers (`input`, `blur`, `keydown`).
+- `train(text: string): void`: Trains model on input text.
+- `predict(prefix: string, numPredictions?: number): string[]`: Returns top predicted next words.
+- `generateText(start: string, length?: number, options?: GenerationOptions): string`: Generates text continuations.
+- `saveModel(path: string): void`: Serializes model state (including JavaScript `Map`s) to JSON.
+- `loadModel(path: string): void`: Restores model state from JSON.
+- `perplexity(text: string): number`: Computes model perplexity.
+- `getEmbeddings(word: string, dimensions?: number): number[]`: Returns normalized embedding vector.
+- `attentionWeights(input: string): { input: string, weights: number[] }`: Returns attention focus scores.
+- `healthCheck(): Object`: Returns model readiness status with vocabulary size and ngram level info.
+- `predictWithConfidence(prefix: string, numPredictions?: number): Array<{word, probability, ngramLevel}>`: Returns predictions with probability scores.
 
-## Usage
+> **Note:** `saveModel()` and `loadModel()` use Node.js `fs` module and are only available in Node.js environments. For browser usage, serialize manually using `JSON.stringify()` and `localStorage`.
 
-To use the `Ngram` class:
+### 2. Tokenizer
+
+Handles multi-lingual regex tokenization, date/timestamp preservation, contractions, and special tokens.
 
 ```javascript
-const Ngram = require("./Ngram");
-const ngram = new Ngram(3); // Initialize with 3-grams
+const { Tokenizer } = require("@putervision/grokjs");
+const tokenizer = new Tokenizer({
+  handleContractions: true,
+  removePunctuation: true,
+});
 
-// Learn from text
-ngram.learn("Hello world how are you");
-
-// Predict next word
-let prediction = ngram.predictNextWord("Hello world"); // Returns an array of predictions
+const tokens = tokenizer.tokenize("It's 2026-07-29. The price is $10.99!");
+// ['it', 'is', '2023-02-04', 'the', 'price', 'is', '10.99']
 ```
 
-#
+### 3. Ngram
 
-# Counter Class
-
-A JavaScript implementation of Python's `Counter` class for counting hashable items. This class can:
-
-- Count occurrences of elements in iterables.
-- Increment or decrement counts for specific items.
-- Provide methods to get counts, sum totals, find most common items, and more.
-
-**Usage:**
+Maintains n-gram frequency trees up to `maxN` = 5.
 
 ```javascript
-const Counter = require("./Counter");
+const { Ngram } = require("@putervision/grokjs");
+const ngram = new Ngram(3);
+ngram.learn("hello world how are you");
+console.log(ngram.predictNextWord("hello world"));
+```
+
+### 4. Counter
+
+High-performance item counting dictionary.
+
+```javascript
+const { Counter } = require("@putervision/grokjs");
 const counter = new Counter(["a", "b", "a", "c", "b", "b"]);
 console.log(counter.get("b")); // 3
-console.log(counter.mostCommon()); // [['b', 3], ['a', 2], ['c', 1]]
+console.log(counter.mostCommon(2)); // [['b', 3], ['a', 2]]
 ```
+
+### 5. Normalizer
+
+Clean and standardize raw text strings.
+
+```javascript
+const { Normalizer } = require("@putervision/grokjs");
+const norm = new Normalizer({ stripAccents: true, lowerCase: true });
+console.log(norm.normalize("  Café   CON  Leche!  ")); // 'cafe con leche!'
+```
+
+### 6. Vocabulary
+
+Build integer ID dictionaries and handle special tokens.
+
+```javascript
+const { Vocabulary } = require("@putervision/grokjs");
+const vocab = new Vocabulary();
+vocab.buildFromTokens(["apple", "banana", "apple"], 1);
+const ids = vocab.encode(["apple", "unknown_word"]); // [4, 1] (1 is <unk>)
+console.log(vocab.decode(ids)); // ['apple', '<unk>']
+```
+
+### 7. FrequencyDistribution
+
+Tracks N-gram joint and conditional token frequencies.
+
+```javascript
+const { FrequencyDistribution } = require("@putervision/grokjs");
+const fd = new FrequencyDistribution();
+fd.record("hello", "world", 5);
+console.log(fd.count("hello", "world")); // 5
+```
+
+### 8. ProbabilityDistribution
+
+Computes MLE, Laplace (Add-k) smoothing, Stupid Backoff, and softmax temperature sampling.
+
+```javascript
+const {
+  ProbabilityDistribution,
+  FrequencyDistribution,
+} = require("@putervision/grokjs");
+const pd = new ProbabilityDistribution(fd);
+console.log(pd.laplace("hello", "world", 1, 1000));
+console.log(pd.sample("hello", 0.7));
+```
+
+### 9. MarkovChain
+
+N-th order Markov chain sequence generator and state transition matrix calculator.
+
+```javascript
+const { MarkovChain } = require("@putervision/grokjs");
+const mc = new MarkovChain(1);
+mc.train([["the", "cat", "sat", "on", "mat"]]);
+console.log(mc.getTransitionMatrix());
+console.log(mc.generatePath("the", 4));
+```
+
+### 10. Corpus
+
+Text dataset loader, sentence extractor, type-token ratio (TTR) stats, and train/val/test splits.
+
+```javascript
+const { Corpus } = require("@putervision/grokjs");
+const corpus = new Corpus();
+corpus.addDocument("Doc 1 content...");
+corpus.addDocument("Doc 2 content...");
+console.log(corpus.getStats()); // { documentCount, sentenceCount, tokenCount, typeTokenRatio }
+const splits = corpus.split(0.8, 0.1, 0.1);
+```
+
+### 11. Embedding
+
+Co-occurrence based vector space representation and similarity math.
+
+> **Note:** Embeddings use co-occurrence with hash projection. For production-quality word vectors, consider training with larger corpora or using pre-trained embeddings (Word2Vec, GloVe).
+
+```javascript
+const { Embedding } = require("@putervision/grokjs");
+const emb = new Embedding(10);
+emb.build([
+  "king queen prince princess royal kingdom",
+  "man woman boy girl human",
+]);
+console.log(emb.cosineSimilarity("king", "queen"));
+console.log(emb.mostSimilar("king", 3));
+```
+
+### 12. AttentionMechanism
+
+Computes self-attention weights and 2D heatmap matrix.
+
+> **Note:** AttentionMechanism provides heuristic-based attention visualization (position × length weighting with distance penalties). For production attention weights, integrate with a trained transformer model.
+
+```javascript
+const { AttentionMechanism } = require("@putervision/grokjs");
+const attn = new AttentionMechanism();
+console.log(attn.computeWeights(["grok", "language", "model"]));
+console.log(attn.getHeatmap(["grok", "language", "model"]));
+```
+
+### 13. EvaluationMetrics
+
+Standardized NLP benchmark metrics: Perplexity, BLEU, ROUGE-L, F1, Accuracy.
+
+```javascript
+const { EvaluationMetrics } = require("@putervision/grokjs");
+console.log(EvaluationMetrics.bleu(["hello", "world"], ["hello", "world"])); // 1.0
+console.log(
+  EvaluationMetrics.rougeL(["the", "quick", "fox"], ["the", "fast", "fox"]),
+);
+```
+
+### 14. InferenceEngine
+
+Advanced text generation pipeline with Top-K, Top-P (nucleus), temperature, repetition penalty, and Beam Search.
+
+```javascript
+const { InferenceEngine, LanguageModel } = require("@putervision/grokjs");
+const lm = new LanguageModel();
+lm.train("grokjs is an open source language model library");
+
+const output = InferenceEngine.generate(lm, "grokjs", 5, {
+  temperature: 0.7,
+  topK: 3,
+  topP: 0.9,
+  repetitionPenalty: 1.2,
+});
+
+const beamOutput = InferenceEngine.beamSearch(lm, "grokjs", 4, 3);
+```
+
+### 15. FactServer
+
+RAG key-value fact store and prompt context injector.
+
+```javascript
+const { FactServer } = require("@putervision/grokjs");
+const fs = new FactServer();
+fs.addFact("science", "speed of light", "299,792,458 m/s");
+console.log(fs.queryFacts("What is the speed of light?"));
+console.log(fs.augmentPrompt("What is the speed of light?"));
+```
+
+### 16. FormAutocompleteEngine & Copy-Paste Webpage Autocomplete
+
+Attach self-learning AI autocomplete to all HTML form inputs, textareas, and contenteditable fields on any webpage. Automatically trains as users type and persists state to `localStorage`.
+
+```javascript
+const { FormAutocompleteEngine } = require("@putervision/grokjs");
+
+// Attach self-learning autocomplete to current webpage
+FormAutocompleteEngine.inject({ autoSave: true });
+```
+
+#### 🚀 Instant Copy-Paste Browser Console Snippet
+
+Copy-paste this one-liner into your browser Developer Console (`F12` -> `Console`) on **ANY webpage** (e.g. Gmail, GitHub, Notion, Twitter, Reddit) to instantly equip the page with self-learning AI autocomplete:
+
+```javascript
+(function () {
+  if (window.__grokjs_autocomplete)
+    return console.log("GrokJS Autocomplete active.");
+  function init() {
+    if (window.GrokJS) {
+      window.__grokjs_autocomplete =
+        window.GrokJS.FormAutocompleteEngine.inject();
+      console.log(
+        "%cGrokJS Self-Learning Autocomplete Injected! Press Tab or Right Arrow to accept completions.",
+        "color:#38bdf8;font-size:14px;font-weight:bold;",
+      );
+    } else {
+      console.error("GrokJS failed to load.");
+    }
+  }
+  if (window.GrokJS) {
+    init();
+  } else {
+    const script = document.createElement("script");
+    script.src =
+      "https://cdn.jsdelivr.net/npm/@putervision/grokjs@1.2.0/dist/grokjs.bundle.js";
+    script.onload = init;
+    document.head.appendChild(script);
+  }
+})();
+```
+
+---
+
+## TypeScript Support
+
+Full TypeScript definitions are included out of the box (`index.d.ts`):
+
+```typescript
+import {
+  LanguageModel,
+  GenerationOptions,
+  EvaluationResult,
+} from "@putervision/grokjs";
+
+const lm: LanguageModel = new LanguageModel();
+lm.train("TypeScript support is fully integrated.");
+
+const opts: GenerationOptions = { temperature: 0.8, topP: 0.9 };
+const text: string = lm.generateText("TypeScript", 5, opts);
+```
+
+---
+
+## Model Serialization
+
+Models are serialized to JSON with proper handling of JavaScript `Map`s and `Counter` instances:
+
+```javascript
+// Save trained model
+lm.saveModel("./model.json");
+
+// Load trained model in another process
+const newLm = new LanguageModel();
+newLm.loadModel("./model.json");
+console.log(newLm.getVocabularySize());
+```
+
+---
+
+## Interactive Documentation Website
+
+An interactive, single-page web documentation and live playground application is available in the `docs/` directory.
+
+To launch locally:
+
+```bash
+npx http-server docs -p 8080
+```
+
+Open `http://localhost:8080` in your browser to experience:
+
+- **Live LM Playground**: Train models in real-time in the browser, adjust temperature, top-k, top-p, and test text generation.
+- **Attention Visualizer**: View interactive attention heatmaps for any sequence.
+- **RAG Fact Server Demo**: Query key-value fact stores and observe prompt context augmentation live.
+
+---
+
+## Testing & Building
+
+Run all 18 test suites (164 tests):
+
+```bash
+npm test
+```
+
+Build browser UMD bundle (`dist/grokjs.bundle.js`):
+
+```bash
+npm run build
+```
+
+---
+
+## Requirements
+
+- Node.js >= 16.0.0
+- npm >= 8.0.0
+- Modern browser (ES6+ support)
+
+---
+
+## Security
+
+`@putervision/grokjs` is designed with security in mind:
+
+- **Client-side only**: All processing happens locally in your browser or Node.js process
+- **No network calls**: The library never makes HTTP requests or sends data externally
+- **No eval()**: No dynamic code execution or `eval()` usage
+- **Minimal dependencies**: Only `franc-cjs` for language detection (read-only)
+- **No data exfiltration**: Your text data never leaves your environment
+
+The `FormAutocompleteEngine` uses `localStorage` for persistence. If you're deploying in a shared environment, be aware that stored autocomplete data is accessible to any script running on the same origin.
+
+For vulnerability reports, see [SECURITY.md](SECURITY.md).
+
+---
+
+## Changelog
+
+See [CHANGELOG.md](CHANGELOG.md) for version history.
+
+---
+
+## Code of Conduct
+
+See [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).
+
+---
+
+## License
+
+[MIT](LICENSE) © PuterVision

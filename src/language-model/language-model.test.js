@@ -69,14 +69,34 @@ describe("LanguageModel", () => {
   });
 
   test("evaluate returns metrics", () => {
-    languageModel.train("hello world");
+    languageModel.train("hello world how are you hello world again");
     let metrics = languageModel.evaluate([
       {
         input: "hello world",
-        reference: "hello world",
+        reference: "hello world how",
+      },
+      {
+        input: "world how",
+        reference: "world how are",
       },
     ]);
     expect(metrics).toHaveProperty("averagePerplexity");
+    expect(metrics).toHaveProperty("averageBLEUScore");
+    expect(metrics).toHaveProperty("accuracy");
+    expect(metrics).toHaveProperty("f1Score");
+    // Perplexity should be a finite number > 1
+    expect(isFinite(metrics.averagePerplexity)).toBe(true);
+    expect(metrics.averagePerplexity).toBeGreaterThan(0);
+    // BLEU should be between 0 and 1
+    expect(metrics.averageBLEUScore).toBeGreaterThanOrEqual(0);
+    expect(metrics.averageBLEUScore).toBeLessThanOrEqual(1);
+    // Accuracy should be between 0 and 1
+    expect(metrics.accuracy).toBeGreaterThanOrEqual(0);
+    expect(metrics.accuracy).toBeLessThanOrEqual(1);
+    // F1 should be a finite number between 0 and 1
+    expect(isFinite(metrics.f1Score)).toBe(true);
+    expect(metrics.f1Score).toBeGreaterThanOrEqual(0);
+    expect(metrics.f1Score).toBeLessThanOrEqual(1);
   });
 
   test("saveModel calls writeFileSync", () => {
@@ -211,16 +231,25 @@ describe("General LanguageModel Tests", () => {
   });
 
   // Test model persistence
-  // todo debug this test - needs fixed mocks
-  //   test("model can save and load state", () => {
-  //     // Assuming saveModel and loadModel are mocked or implemented for testing
-  //     languageModel.saveModel("testModel.json");
-  //     const newModel = new LanguageModel();
-  //     newModel.loadModel("testModel.json");
-  //     expect(newModel.getVocabularySize()).toBe(
-  //       languageModel.getVocabularySize(),
-  //     );
-  //   });
+  test("model can save and load state", () => {
+    const realFs = jest.requireActual("fs");
+    jest
+      .spyOn(fs, "writeFileSync")
+      .mockImplementation((p, data) => realFs.writeFileSync(p, data));
+    jest
+      .spyOn(fs, "readFileSync")
+      .mockImplementation((p) => realFs.readFileSync(p, "utf8"));
+
+    const testPath = "testModel.json";
+    languageModel.train("hello world how are you");
+    languageModel.saveModel(testPath);
+    const newModel = new LanguageModel();
+    newModel.loadModel(testPath);
+    expect(newModel.getVocabularySize()).toBe(
+      languageModel.getVocabularySize(),
+    );
+    if (realFs.existsSync(testPath)) realFs.unlinkSync(testPath);
+  });
 
   // Test evaluation metrics
   test("model can be evaluated", () => {
@@ -276,14 +305,9 @@ describe("General LanguageModel Tests", () => {
     expect(updatedCount).not.toBe(initialCount);
   });
 
-  // Test language adaptation
   test("model adapts to language", () => {
-    // Mock console.log to check if the message was logged
-    jest.spyOn(console, "log");
     languageModel.adaptToLanguage("Spanish");
-    expect(console.log).toHaveBeenCalledWith(
-      "Adapting model to language: Spanish",
-    );
+    expect(languageModel.context.language).toBe("Spanish");
   });
 });
 
@@ -481,25 +505,23 @@ describe("LanguageModel - evaluate", () => {
     const testData = [];
     const result = languageModel.evaluate(testData);
 
-    // When there's no data, we expect all metrics to be 0 or NaN for division by zero
+    // When there's no data, we expect all metrics to be NaN for division by zero
     expect(result.averagePerplexity).toBeNaN();
     expect(result.averageBLEUScore).toBeNaN();
     expect(result.accuracy).toBeNaN();
-    expect(result.f1Score).toBe(0);
+    expect(result.f1Score).toBeNaN();
   });
 
-  // todo: debug this test - accuracy is returning 0
-  // test('evaluate with perfect prediction for accuracy', () => {
-  //   const testData = [
-  //     { input: 'hello world', reference: 'hello world how' },
-  //     { input: 'world how', reference: 'world how are' },
-  //     { input: 'how are', reference: 'how are you' }
-  //   ];
+  test("evaluate with perfect prediction for accuracy", () => {
+    const testData = [
+      { input: "hello world", reference: "hello world how" },
+      { input: "world how", reference: "world how are" },
+      { input: "how are", reference: "how are you" },
+    ];
 
-  //   // Since the model was trained with this data, it should predict well
-  //   const result = languageModel.evaluate(testData);
-  //   expect(result.accuracy).toBeGreaterThan(0);
-  // });
+    const result = languageModel.evaluate(testData);
+    expect(result.accuracy).toBeGreaterThan(0);
+  });
 
   test("evaluate with poor prediction for accuracy", () => {
     const testData = [
@@ -529,28 +551,24 @@ describe("LanguageModel - evaluate", () => {
     );
   });
 
-  // todo: debug this test - f1Score is returning 0
-  // test('evaluate F1 score with presence of target word', () => {
-  //   // Assuming 'world' is our target word for this test
-  //   const testData = [
-  //     { input: 'hello world how', reference: 'hello world how are you' },
-  //     { input: 'hello are you world', reference: 'hello world' }
-  //   ];
-
-  //   const result = languageModel.evaluate(testData);
-  //   // Since 'world' is present in one case out of two, we expect some F1 score
-  //   expect(result.f1Score).toBeGreaterThan(0);
-  // });
-
-  test("evaluate F1 score with absence of target word", () => {
-    // Assuming 'world' is our target word for this test
+  test("evaluate F1 score with presence of target word", () => {
     const testData = [
-      { input: "hello how are", reference: "hello world" },
-      { input: "how are you", reference: "hello world" },
+      { input: "hello world how", reference: "hello world how are you" },
+      { input: "hello are you world", reference: "hello world" },
     ];
 
     const result = languageModel.evaluate(testData);
-    // Since 'world' is not present in any case, we expect F1 score to be 0
+    expect(result.f1Score).toBeGreaterThan(0);
+  });
+
+  test("evaluate F1 score with no token overlap", () => {
+    const testData = [
+      { input: "alpha beta", reference: "gamma delta" },
+      { input: "one two", reference: "three four" },
+    ];
+
+    const result = languageModel.evaluate(testData);
+    // Since input and reference have no token overlap, F1 score is 0
     expect(result.f1Score).toBe(0);
   });
 });

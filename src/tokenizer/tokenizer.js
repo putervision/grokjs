@@ -1,27 +1,28 @@
-const { franc } = require("franc-cjs");
+let franc;
+try {
+  franc = require("franc-cjs").franc;
+} catch (e) {
+  franc = null;
+}
 
 class Tokenizer {
   constructor(options = {}) {
-    this.lowerCase = options.lowerCase !== false; // Default to true
+    this.lowerCase = options.lowerCase !== false;
     this.preserveCase = options.preserveCase || false;
-    this.handleContractions = options.handleContractions !== false; // Default to true
+    this.handleContractions = options.handleContractions !== false;
     this.addSpecialTokensFlag = options.addSpecialTokens || false;
     this.removePunctuation = options.removePunctuation !== false;
+    this.language = options.language || null;
 
     // Comprehensive regular expression for tokenization:
-    // - Matches words including those with apostrophes for contractions (e.g., 'it's', 'don't')
-    // - Captures individual punctuation marks (., !, ?, ;, :, $,)
-    // - Identifies integers and floating-point numbers (e.g., '123', '123.45')
-    // - Preserves common date formats (YYYY-MM-DD, DD-MM-YYYY, etc.) as single tokens
-    // - Catches any non-whitespace character for robust tokenization of special cases
+    // Preserves dates, ISO timestamps, floating point numbers ($10.99), words with contractions, punctuation.
     this.defaultTokenRegex =
-      /\b\w+(?:['’]\w+)*\b|[.,!?;:$]|\d+(?:\.\d+)?|((\d{4}|\d{2})[-/]\d{2}[-/]\d{2})|(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z?)|\S+/g;
+      /(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z?)|((?:\d{4}|\d{2})[-/]\d{2}[-/]\d{2})|(\d+\.\d+)|\b\w+(?:['’]\w+)*\b|[.,!?;:$]|\d+|\S+/g;
 
-    // Different regex based on language - this needs upgraded
     this.langRules = {
       eng: this.defaultTokenRegex,
-      deu: /(?:\b\w+(?:-\w+)*\b|[.,!?;:])|\S+/g, // German, handling compound words
-      jpn: /[\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Han}ー]+|([、。！？])|\s+/gu, // Japanese unicode
+      deu: /(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z?)|((?:\d{4}|\d{2})[-/]\d{2}[-/]\d{2})|(\d+\.\d+)|\b\w+(?:[-\w+])*|\S+/g,
+      jpn: /[\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Han}ー]+|([、。！？])|\S+/gu,
     };
   }
 
@@ -35,27 +36,34 @@ class Tokenizer {
       throw new Error("Input must be a string");
     }
 
-    // Apply case transformation based on options
     if (this.lowerCase && !this.preserveCase) text = text.toLowerCase();
-
-    // Replace newlines with spaces to treat them as word separators
     text = text.replace(/\n/g, " ");
 
-    // Determine language and apply appropriate regex
-    const lang = franc(text, {
-      minLength: 3,
-      whitelist: ["eng", "jpn", "deu"],
-    });
+    let detectedLang = this.language;
+    if (!detectedLang) {
+      if (typeof franc === "function") {
+        try {
+          detectedLang = franc(text, {
+            minLength: 5,
+            whitelist: ["eng", "jpn", "deu"],
+          });
+        } catch (err) {
+          detectedLang = "eng";
+        }
+      } else {
+        detectedLang = /[\u3040-\u30ff\u4e00-\u9faf]/.test(text)
+          ? "jpn"
+          : "eng";
+      }
+    }
+    const lang = detectedLang === "und" ? "eng" : detectedLang;
     const regex = this.langRules[lang] || this.defaultTokenRegex;
 
-    // Tokenize the text
     let tokens = text.match(regex) || [];
 
-    // Filter out empty strings which might result from multiple spaces or newlines
-    tokens = tokens.filter((token) => token.trim() !== "");
+    tokens = tokens.filter((token) => token && token.trim() !== "");
 
-    // Handle contractions if specified
-    if (this.handleContractions && lang === "eng") {
+    if (this.handleContractions && (lang === "eng" || lang === "und")) {
       const contractions = {
         "n't": "not",
         "'ve": "have",
@@ -66,26 +74,21 @@ class Tokenizer {
         "'m": "am",
       };
 
-      // Map over each token to expand and split contractions
       tokens = tokens.flatMap((token) => {
         for (let [contraction, expansion] of Object.entries(contractions)) {
           if (token.endsWith(contraction)) {
-            // Split the expanded form into separate tokens
             return token
               .slice(0, -contraction.length)
               .split(" ")
               .concat(expansion.split(" "));
           }
         }
-        // If no contraction was found, return the token as is
         return [token];
       });
     }
 
-    // Remove punctuation if the option is set, but ensure dates and numbers with decimal points are preserved
     if (this.removePunctuation && lang !== "jpn") {
       tokens = tokens.filter((token) => {
-        // Check if the token is a date before filtering out punctuation
         if (
           /^(?:\d{4}|\d{2})[-/]\d{2}[-/]\d{2}$/.test(token) ||
           /^\d+(?:\.\d+)?$/.test(token)
@@ -96,7 +99,6 @@ class Tokenizer {
       });
     }
 
-    // Add special tokens if the flag is set
     if (this.addSpecialTokensFlag) {
       tokens = this.addSpecialTokens(tokens);
     }
@@ -110,16 +112,15 @@ class Tokenizer {
    * @return {string} - The detokenized text
    */
   detokenize(tokens) {
-    // Remove special tokens if they were added
+    if (!Array.isArray(tokens)) return "";
     if (this.addSpecialTokensFlag) {
       tokens = this.removeSpecialTokens(tokens);
     }
-    // Join tokens with a space
     return tokens.join(" ");
   }
 
   /**
-   * Adds special tokens like start and end of sentence markers if needed.
+   * Adds special tokens like start and end of sentence markers.
    * @param {string[]} tokens - Array of tokens to process
    * @return {string[]} - Array of tokens with special markers
    */

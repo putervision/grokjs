@@ -1,13 +1,24 @@
 const fs = require("fs");
 const Ngram = require("../ngram/ngram");
 const Counter = require("../counter/counter");
+const EvaluationMetrics = require("../evaluation-metrics/evaluation-metrics");
+const InferenceEngine = require("../inference-engine/inference-engine");
+const Embedding = require("../embedding/embedding");
+const AttentionMechanism = require("../attention-mechanism/attention-mechanism");
 
 class LanguageModel {
+  /**
+   * Constructs a LanguageModel instance.
+   * @param {Ngram} [ngram] - Optional pre-configured Ngram instance
+   * @param {number} [maxN=5] - Maximum n-gram level
+   */
   constructor(ngram, maxN = 5) {
     this.ngram = ngram || new Ngram(maxN);
-    this.maxN = ngram?.maxN;
+    this.maxN = this.ngram.maxN;
     this.vocabulary = new Set();
     this.context = {};
+    this.embedding = null;
+    this.attention = null;
   }
 
   /**
@@ -15,9 +26,14 @@ class LanguageModel {
    * @param {string} text - The text to train the model with
    */
   train(text) {
+    if (typeof text !== "string") {
+      throw new Error("Input must be a string");
+    }
     let tokens = this.ngram.tokenize(text);
-    this.ngram.learn(tokens.join(" "));
-    tokens.forEach((word) => this.vocabulary.add(word));
+    this.ngram.learn(text);
+    tokens.forEach((word) => {
+      if (word) this.vocabulary.add(word);
+    });
   }
 
   /**
@@ -27,27 +43,57 @@ class LanguageModel {
    * @return {string[]} - Array of predicted words or sequences
    */
   predict(prefix, numPredictions = 1) {
+    if (typeof prefix !== "string") {
+      throw new Error("Prefix must be a string");
+    }
     return this.ngram.predictNextWord(prefix).slice(0, numPredictions);
   }
 
   /**
-   * Generates text based on a starting sequence.
-   * @param {string} start - The starting sequence
-   * @param {number} [length=10] - Length of text to generate
-   * @return {string} - Generated text
+   * Predicts the next word with probability confidence scores.
+   * @param {string} prefix - The context or prefix to predict from
+   * @param {number} [numPredictions=5] - Number of predictions to return
+   * @return {Array<{ word: string, probability: number }>} - Predicted words with probabilities
    */
-  generateText(start, length = 10) {
-    let generated = start;
-    let currentPrefix = start;
+  predictWithConfidence(prefix, numPredictions = 5) {
+    if (typeof prefix !== "string") {
+      throw new Error("Prefix must be a string");
+    }
+    const tokens = this.ngram.tokenize(prefix);
+    const predictions = [];
 
-    for (let i = 0; i < length; i++) {
-      let nextWord = this.predict(currentPrefix, 1)[0];
-      if (!nextWord) break;
-      generated += " " + nextWord;
-      currentPrefix = generated.split(" ").slice(-this.maxN).join(" ");
+    for (let n = Math.min(tokens.length, this.maxN); n > 0; n--) {
+      const ngram = tokens.slice(-n).join(" ");
+      const counter = this.ngram.ngrams[n - 1]?.get(ngram);
+
+      if (counter && counter.total() > 0) {
+        const mostCommon = counter.mostCommon(numPredictions);
+        for (const [word, count] of mostCommon) {
+          predictions.push({
+            word,
+            probability: count / counter.total(),
+            ngramLevel: n,
+          });
+        }
+        break;
+      }
     }
 
-    return generated;
+    return predictions;
+  }
+
+  /**
+   * Generates text based on a starting sequence using InferenceEngine.
+   * @param {string} start - The starting sequence
+   * @param {number} [length=10] - Length of text to generate
+   * @param {Object} [options={}] - Advanced sampling options
+   * @return {string} - Generated text
+   */
+  generateText(start, length = 10, options = {}) {
+    if (typeof start !== "string") {
+      throw new Error("Start must be a string");
+    }
+    return InferenceEngine.generate(this, start, length, options);
   }
 
   /**
@@ -75,11 +121,20 @@ class LanguageModel {
   }
 
   /**
-   * Evaluates the model's performance on a test dataset using multiple metrics.
+   * Evaluates the model's performance on a test dataset.
    * @param {Object[]} testData - Array of objects with 'input' and 'reference' properties
-   * @return {Object} - Evaluation metrics including perplexity, BLEU score, accuracy, and F1 score
+   * @return {Object} - Evaluation metrics
    */
   evaluate(testData) {
+    if (!Array.isArray(testData) || testData.length === 0) {
+      return {
+        averagePerplexity: NaN,
+        averageBLEUScore: NaN,
+        accuracy: NaN,
+        f1Score: NaN,
+      };
+    }
+
     let totalPerplexity = 0;
     let totalBLEU = 0;
     let correctPredictions = 0;
@@ -90,83 +145,105 @@ class LanguageModel {
 
     for (let item of testData) {
       const { input, reference } = item;
-      const tokens = this.tokenize(input);
-      const refTokens = this.tokenize(reference);
+      const candTokens = this.tokenize(input || "");
+      const refTokens = this.tokenize(reference || "");
 
       // Perplexity
-      totalPerplexity += this.perplexity(input);
+      totalPerplexity += this.perplexity(reference || input);
 
-      // BLEU Score (simplified version for 1-gram)
-      let precision = this.bleuPrecision(tokens, refTokens);
-      totalBLEU += precision;
+      // BLEU Score
+      totalBLEU += EvaluationMetrics.bleu(candTokens, refTokens);
 
-      // Accuracy (next word prediction)
-      let prediction = this.predict(
-        input.split(" ").slice(0, -1).join(" "),
-        1,
-      )[0];
-      if (prediction === refTokens[refTokens.length - 1]) {
-        correctPredictions++;
+      // Accuracy: predict next word after 'input', compare against
+      // the first token of 'reference' that extends beyond input
+      if (input && reference) {
+        const predictions = this.predict(input, 1);
+        const nextPred = predictions[0] || "";
+        const inputTokens = this.tokenize(input);
+        let expectedNext = "";
+        if (refTokens.length > inputTokens.length) {
+          expectedNext = refTokens[inputTokens.length];
+        } else {
+          expectedNext = refTokens[0] || "";
+        }
+
+        if (nextPred && expectedNext && nextPred === expectedNext) {
+          correctPredictions++;
+        }
+        totalPredictions++;
       }
-      totalPredictions++;
 
-      // F1 Score (assuming binary classification task)
-      let actualClass = refTokens.includes("targetWord"); // Example: checking for presence of a specific word
-      let predictedClass = tokens.includes("targetWord");
-      if (actualClass && predictedClass) truePositives++;
-      if (!actualClass && predictedClass) falsePositives++;
-      if (actualClass && !predictedClass) falseNegatives++;
+      // F1 Score: proper token set overlap (not hardcoded "targetWord"/"world")
+      const predSet = new Set(candTokens);
+      const refSet = new Set(refTokens);
+
+      for (const token of predSet) {
+        if (refSet.has(token)) {
+          truePositives++;
+        } else {
+          falsePositives++;
+        }
+      }
+      for (const token of refSet) {
+        if (!predSet.has(token)) {
+          falseNegatives++;
+        }
+      }
     }
 
-    // Calculate average metrics
-    const avgPerplexity = totalPerplexity / testData.length;
-    const avgBLEU = totalBLEU / testData.length;
-    const accuracy = correctPredictions / totalPredictions;
+    const precision =
+      truePositives + falsePositives > 0
+        ? truePositives / (truePositives + falsePositives)
+        : 0;
+    const recall =
+      truePositives + falseNegatives > 0
+        ? truePositives / (truePositives + falseNegatives)
+        : 0;
+    const f1Score =
+      precision + recall > 0
+        ? (2 * precision * recall) / (precision + recall)
+        : 0;
 
-    // F1 Score Calculation
-    const precision = truePositives / (truePositives + falsePositives);
-    const recall = truePositives / (truePositives + falseNegatives);
-    const f1Score = (2 * (precision * recall)) / (precision + recall) || 0; // Avoid division by zero
-
+    const len = testData.length;
     return {
-      averagePerplexity: avgPerplexity,
-      averageBLEUScore: avgBLEU,
-      accuracy: accuracy,
+      averagePerplexity: totalPerplexity / len,
+      averageBLEUScore: totalBLEU / len,
+      accuracy:
+        totalPredictions > 0 ? correctPredictions / totalPredictions : 0,
       f1Score: f1Score,
     };
   }
 
   /**
-   * Calculates BLEU precision for 1-gram.
+   * Calculates BLEU precision for n-grams.
    * @param {string[]} candidate - Candidate tokens
    * @param {string[]} reference - Reference tokens
    * @return {number} - Precision score
    */
   bleuPrecision(candidate, reference) {
-    let clippedCount = 0;
-    let totalCount = candidate.length;
-
-    for (let word of candidate) {
-      let countInCandidate = candidate.filter((w) => w === word).length;
-      let countInReference = reference.filter((w) => w === word).length;
-      clippedCount += Math.min(countInCandidate, countInReference);
-    }
-
-    return clippedCount / totalCount;
+    return EvaluationMetrics.bleu(candidate, reference, 1);
   }
 
   /**
-   * Saves the current state of the model to a file.
+   * Saves the current state of the model to a JSON file.
    * @param {string} path - Path where to save the model
    */
   saveModel(path) {
+    const serializedNgrams = this.ngram.ngrams.map((map) => {
+      const obj = {};
+      for (let [key, counter] of map.entries()) {
+        obj[key] = Array.from(counter.counter.entries());
+      }
+      return obj;
+    });
+
     const modelState = {
-      ngram: this.ngram,
       maxN: this.maxN,
+      ngrams: serializedNgrams,
       vocabulary: Array.from(this.vocabulary),
       context: this.context,
     };
-    fs.writeFileSync(path, JSON.stringify(modelState));
+    fs.writeFileSync(path, JSON.stringify(modelState, null, 2));
   }
 
   /**
@@ -175,19 +252,38 @@ class LanguageModel {
    */
   loadModel(path) {
     const modelState = JSON.parse(fs.readFileSync(path, "utf8"));
-    this.ngram = new Ngram(modelState.maxN);
-    this.maxN = modelState.maxN;
-    this.vocabulary = new Set(modelState.vocabulary);
-    this.context = modelState.context;
-    // Re-learn from the saved ngram data
-    for (let n in modelState.ngram.ngrams) {
-      for (let [key, value] of Object.entries(modelState.ngram.ngrams[n])) {
-        let counter = new Counter();
-        for (let [word, count] of Object.entries(value)) {
-          counter.increment(word, count);
+    this.maxN = modelState.maxN || 5;
+    this.ngram = new Ngram(this.maxN);
+    this.vocabulary = new Set(modelState.vocabulary || []);
+    this.context = modelState.context || {};
+
+    if (Array.isArray(modelState.ngrams)) {
+      modelState.ngrams.forEach((ngramObj, index) => {
+        if (index < this.ngram.ngrams.length) {
+          const map = new Map();
+          for (let [key, entries] of Object.entries(ngramObj)) {
+            const counter = new Counter();
+            if (Array.isArray(entries)) {
+              entries.forEach(([word, count]) => {
+                counter.increment(word, count);
+                if (word) this.vocabulary.add(word);
+              });
+            } else if (typeof entries === "object" && entries !== null) {
+              Object.entries(entries).forEach(([word, count]) => {
+                counter.increment(word, count);
+                if (word) this.vocabulary.add(word);
+              });
+            }
+            map.set(key, counter);
+            if (key) {
+              key.split(" ").forEach((w) => {
+                if (w) this.vocabulary.add(w);
+              });
+            }
+          }
+          this.ngram.ngrams[index] = map;
         }
-        this.ngram.ngrams[n].set(key, counter);
-      }
+      });
     }
   }
 
@@ -206,6 +302,22 @@ class LanguageModel {
     this.ngram = new Ngram(this.maxN);
     this.vocabulary.clear();
     this.context = {};
+    this.embedding = null;
+    this.attention = null;
+  }
+
+  /**
+   * Checks if the model has been trained and is ready for inference.
+   * @return {Object} - Health status object
+   */
+  healthCheck() {
+    return {
+      isTrained: this.vocabulary.size > 0,
+      vocabularySize: this.vocabulary.size,
+      ngramLevels: this.ngram.ngrams.filter((m) => m.size > 0).length,
+      maxNgramLevel: this.maxN,
+      ready: this.vocabulary.size > 0,
+    };
   }
 
   /**
@@ -215,13 +327,26 @@ class LanguageModel {
    * @return {number} - Probability of the word in the given context
    */
   getProbability(word, context) {
-    let counter =
-      this.ngram.ngrams[this.ngram.tokenize(context).length - 1]?.get(context);
-    if (counter) {
-      let totalCount = counter.total();
-      return totalCount > 0 ? counter.get(word) / totalCount : 0;
+    const tokens = this.ngram.tokenize(context || "");
+    const contextN = Math.min(tokens.length, this.maxN - 1);
+
+    if (contextN === 0) {
+      const counter = this.ngram.ngrams[0]?.get("");
+      const total = counter ? counter.total() : 0;
+      return total > 0 ? (counter.get(word) || 0) / total : 0.0001;
     }
-    return 0;
+
+    const trimmedContext = tokens.slice(-contextN).join(" ");
+    const counter = this.ngram.ngrams[contextN - 1]?.get(trimmedContext);
+
+    if (counter) {
+      const totalCount = counter.total();
+      if (totalCount > 0) {
+        return counter.get(word) / totalCount;
+      }
+    }
+
+    return 0.0001;
   }
 
   /**
@@ -239,15 +364,15 @@ class LanguageModel {
    * @return {string} - Detokenized text
    */
   detokenize(tokens) {
-    return tokens.join(" ");
+    return Array.isArray(tokens) ? tokens.join(" ") : "";
   }
 
   /**
-   * Fine-tunes the model on new data with a specified learning rate, adjusting the counts of n-grams.
+   * Fine-tunes the model on new data with a specified learning rate.
    * @param {string} text - Text to fine-tune on
-   * @param {number} learningRate - Learning rate for fine-tuning; controls how much to adjust the counts
+   * @param {number} learningRate - Learning rate for fine-tuning (0 to 1)
    */
-  fineTune(text, learningRate) {
+  fineTune(text, learningRate = 0.1) {
     if (learningRate <= 0 || learningRate > 1) {
       throw new Error("Learning rate must be between 0 and 1");
     }
@@ -258,32 +383,16 @@ class LanguageModel {
         let ngram = tokens.slice(i, i + n).join(" ");
         let nextWord = tokens[i + n] || "";
 
-        // Check if the n-gram exists in the model
         if (this.ngram.ngrams[n - 1].has(ngram)) {
           let counter = this.ngram.ngrams[n - 1].get(ngram);
-
-          // Get the current count of the next word
           let currentCount = counter.get(nextWord);
 
-          // Calculate adjustment based on learning rate
-          // Here we're using a simple approach: increase by learningRate if count is low
-          // decrease by learningRate if count is high
           if (currentCount > this.maxN) {
-            //console.log('decrement', currentCount, this.maxN, nextWord, learningRate)
             counter.decrement(nextWord, learningRate);
           } else {
-            //console.log('increment', currentCount, this.maxN, nextWord, learningRate)
             counter.increment(nextWord, learningRate);
           }
-
-          //counter.increment(nextWord, adjustment);
-
-          // Ensure counts don't go negative or become too small
-          if (counter.get(nextWord) < 0.1) {
-            counter.increment(nextWord, -counter.get(nextWord) + 0.1);
-          }
         } else {
-          // If the n-gram doesn't exist, we initialize it with a small count
           this.ngram.ngrams[n - 1].set(ngram, new Counter());
           this.ngram.ngrams[n - 1].get(ngram).increment(nextWord, learningRate);
         }
@@ -292,73 +401,53 @@ class LanguageModel {
   }
 
   /**
-   * Retrieves simulated embeddings for a word based on its frequency in different n-gram contexts.
-   * This method uses the n-gram model to create a pseudo-embedding vector where each dimension
-   * might represent the frequency in different contexts or n-gram sizes.
+   * Retrieves simulated embeddings for a word based on frequency in n-gram contexts.
    * @param {string} word - The word to get embeddings for
-   * @param {number} [dimensions=10] - Number of dimensions for the embedding vector
-   * @return {number[]} - Array representing the word's embedding, normalized to unit length
+   * @param {number} [dimensions=10] - Number of dimensions
+   * @return {number[]} - Unit normalized non-negative vector
    */
   getEmbeddings(word, dimensions = 10) {
-    // Initialize an array of zeros for the embedding vector
     let embedding = new Array(dimensions).fill(0);
 
-    // Check if the word exists in the vocabulary
     if (!this.vocabulary.has(word)) {
-      // If not, return a random embedding or handle it as you see fit
-      return Array.from({ length: dimensions }, () => Math.random());
+      return this.randomUnitVector(dimensions);
     }
 
-    // For each n-gram size from 1 to maxN
     for (let n = 1; n <= this.maxN; n++) {
-      // Find all n-grams where the word appears
       for (let [ngram, counter] of this.ngram.ngrams[n - 1]) {
         if (ngram.includes(word)) {
-          // Calculate a position in the embedding based on n-gram size and context
-          let position = (n - 1) * 3 + (ngram.split(" ").indexOf(word) % 3); // Simple mapping strategy
-
-          // If position exceeds dimensions, wrap around
+          let position = (n - 1) * 3 + (ngram.split(" ").indexOf(word) % 3);
           position = position % dimensions;
-
-          // Add the total count of this n-gram to the embedding
           embedding[position] += counter.total();
         }
       }
     }
 
-    // Normalize the embedding vector to unit length
     let magnitude = Math.sqrt(
       embedding.reduce((sum, val) => sum + val * val, 0),
     );
-    if (magnitude !== 0) {
-      embedding = embedding.map((val) => val / magnitude);
+    if (magnitude > 0) {
+      return embedding.map((val) => val / magnitude);
     } else {
-      // If all values are zero, return a random unit vector
-      embedding = this.randomUnitVector(dimensions);
+      return this.randomUnitVector(dimensions);
     }
-
-    return embedding;
   }
 
   /**
-   * Generates a random unit vector of the given dimension.
+   * Generates a random unit vector of the given dimension with non-negative values in [0, 1].
    * @param {number} dimensions - The dimension of the vector
-   * @return {number[]} - A random unit vector
+   * @return {number[]} - Non-negative unit normalized vector
    */
   randomUnitVector(dimensions) {
     let vector = [];
     let magnitude = 0;
-
-    // Generate random values
     for (let i = 0; i < dimensions; i++) {
-      let value = Math.random() * 2 - 1; // Values between -1 and 1
+      let value = Math.random() + 0.1;
       vector.push(value);
       magnitude += value * value;
     }
-
-    // Normalize
     magnitude = Math.sqrt(magnitude);
-    return vector.map((val) => val / magnitude);
+    return magnitude > 0 ? vector.map((val) => val / magnitude) : vector;
   }
 
   /**
@@ -367,80 +456,45 @@ class LanguageModel {
    * @return {number} - Perplexity score
    */
   perplexity(text) {
-    let tokens = this.tokenize(text);
-    let logProbSum = 0;
-    for (let i = 0; i < tokens.length; i++) {
-      let context = tokens.slice(Math.max(0, i - this.maxN + 1), i).join(" ");
-      let prob = this.getProbability(tokens[i], context);
-      if (prob > 0) {
-        logProbSum += Math.log(prob);
-      } else {
-        // If probability is 0, we'll consider it as a very low probability to avoid log(0)
-        logProbSum += Math.log(Number.EPSILON);
-      }
-    }
-    return Math.exp(-logProbSum / tokens.length);
+    return EvaluationMetrics.perplexity(this, text);
   }
 
   /**
-   * Calculates simulated attention weights for parts of the input text based on n-gram frequencies.
-   * This method provides a basic approximation of how attention might distribute focus across
-   * different parts of the input by considering the frequency of n-grams in the model.
-   * @param {string} input - The input text to calculate attention weights for
-   * @return {Object} - An object containing the input and an array of attention weights
+   * Calculates attention weights for parts of the input text using AttentionMechanism.
+   * @param {string} input - The input text
+   * @return {Object} - Object containing input string and attention weights array
    */
   attentionWeights(input) {
-    let tokens = this.tokenize(input);
-    let weights = [];
-
-    // If the input is empty or too short, return uniform weights
-    if (tokens.length <= 1) {
-      return { input: input, weights: tokens.map(() => 1 / tokens.length) };
+    const tokens = this.tokenize(input);
+    if (!this.attention) {
+      this.attention = new AttentionMechanism(this.maxN);
     }
-
-    // Calculate weights based on n-gram frequency
-    for (let i = 0; i < tokens.length; i++) {
-      let totalWeight = 0;
-      for (let n = 1; n <= this.maxN && n <= tokens.length; n++) {
-        let ngram = tokens.slice(Math.max(0, i - n + 1), i + 1).join(" ");
-        let counter = this.ngram.ngrams[n - 1].get(ngram);
-        if (counter) {
-          // Sum the counts of all possible next words for this n-gram
-          totalWeight += counter.total();
-        }
-      }
-      // Normalize the weight based on the total frequency of n-grams ending at this token
-      weights.push(totalWeight > 0 ? totalWeight : 0.1); // Small default weight if no n-gram found
-    }
-
-    // Normalize weights so they sum to 1
-    let sum = weights.reduce((acc, val) => acc + val, 0);
-    weights = weights.map((weight) => weight / sum);
-
+    const weights = this.attention.computeWeights(tokens);
     return { input: input, weights: weights };
   }
 
   /**
-   * Provides an explanation or insight into why certain predictions were made.
+   * Provides an explanation into why certain predictions were made.
    * @param {string} prefix - The prefix to explain predictions for
-   * @return {string} - Explanation of the prediction
+   * @return {string} - Explanation string
    */
   explainPrediction(prefix) {
     let predictions = this.predict(prefix, 3);
     return (
-      `For the prefix "${prefix}", the model predicted "${predictions.join(", ")}"` +
+      `For the prefix "${prefix}", the model predicted "${predictions.join(", ")}" ` +
       `based on n-gram frequencies in the trained data.`
     );
   }
 
   /**
-   * Adapts the model's behavior or parameters to a specific language.
-   * @param {string} language - The language to adapt to
+   * Adapts the model's behavior to a specific language.
+   * @param {string} language - Language code (e.g. 'eng', 'deu', 'jpn')
    */
   adaptToLanguage(language) {
-    // Placeholder for language adaptation logic
-    console.log(`Adapting model to language: ${language}`);
-    // Here you could adjust tokenization rules, add language-specific n-grams, etc.
+    if (this.ngram && this.ngram.tokenizer) {
+      this.ngram.tokenizer.language = language;
+    }
+    this.context.language = language;
   }
 }
 

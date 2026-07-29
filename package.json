@@ -1,25 +1,69 @@
 {
   "name": "@putervision/grokjs",
-  "version": "1.1.1",
+  "version": "1.2.0",
   "description": "A JavaScript implementation of a basic Language Model (LM) and utilities designed to facilitate natural language processing tasks, inspired by advanced models like xAI's Grok. (not affiliated with xAI)",
+  "keywords": [
+    "language-model",
+    "nlp",
+    "n-gram",
+    "text-generation",
+    "autocomplete",
+    "attention-mechanism",
+    "rag",
+    "embedding",
+    "javascript",
+    "typescript",
+    "grokjs",
+    "putervision"
+  ],
+  "homepage": "https://github.com/putervision/grokjs#readme",
+  "bugs": {
+    "url": "https://github.com/putervision/grokjs/issues",
+    "email": "support@putervision.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/putervision/grokjs.git"
+  },
+  "license": "MIT",
+  "author": "PuterVision LLC",
+  "sideEffects": false,
+  "browser": "./index.js",
+  "type": "commonjs",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "require": "./index.js",
+      "import": "./index.js"
+    }
+  },
+  "files": [
+    "index.js",
+    "index.d.ts",
+    "src/**/*.js",
+    "!src/**/*.test.js",
+    "dist/",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=16.0.0"
+  },
   "scripts": {
     "test": "jest",
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,css,scss,md}\"",
-    "build": "browserify ./src/ngram/ngram.js -o ./dist/ngram-bundle.js"
+    "build": "mkdir -p dist && browserify ./index.js -s GrokJS -o ./dist/grokjs.bundle.js",
+    "prepublishOnly": "npm run build",
+    "release": "npm publish"
   },
-  "type": "commonjs",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/putervision/grokjs"
+  "publishConfig": {
+    "access": "public"
   },
-  "keywords": [
-    "ngram",
-    "javascript",
-    "language model",
-    "llm"
-  ],
-  "author": "PuterVision",
-  "license": "MIT",
+  "dependencies": {
+    "franc-cjs": "^6.2.0"
+  },
   "devDependencies": {
     "browserify": "^17.0.1",
     "jest": "^29.7.0",
@@ -28,9 +72,5 @@
   },
   "jest": {
     "testEnvironment": "jsdom"
-  },
-  "dependencies": {
-    "franc": "^6.2.0",
-    "franc-cjs": "^6.2.0"
   }
 }

@@ -20,8 +20,8 @@ class Counter {
    * @throws {Error} If increment is not a non-negative number
    */
   increment(item, n = 1) {
-    if (typeof n !== "number" || n < 0)
-      throw new Error("Increment must be a non-negative number");
+    if (typeof n !== "number" || !Number.isFinite(n) || n < 0)
+      throw new Error("Increment must be a finite non-negative number");
     this.counter.set(item, (this.counter.get(item) || 0) + n);
   }
 
@@ -33,8 +33,8 @@ class Counter {
    * @throws {Error} If decrement is not a non-negative number
    */
   decrement(item, n = 1) {
-    if (typeof n !== "number" || n < 0)
-      throw new Error("Decrement must be a non-negative number");
+    if (typeof n !== "number" || !Number.isFinite(n) || n < 0)
+      throw new Error("Decrement must be a finite non-negative number");
     let count = this.counter.get(item) || 0;
     count -= n;
     if (count > 0) {

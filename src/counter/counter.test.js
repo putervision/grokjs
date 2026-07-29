@@ -85,4 +85,43 @@ describe("Counter", () => {
   test("toString method provides correct string representation", () => {
     expect(counter.toString()).toBe("Counter({a: 2, b: 3, c: 1})");
   });
+
+  test("increment rejects NaN", () => {
+    expect(() => counter.increment("x", NaN)).toThrow(
+      "Increment must be a finite non-negative number",
+    );
+  });
+
+  test("increment rejects Infinity", () => {
+    expect(() => counter.increment("x", Infinity)).toThrow(
+      "Increment must be a finite non-negative number",
+    );
+  });
+
+  test("increment rejects negative numbers", () => {
+    expect(() => counter.increment("x", -1)).toThrow(
+      "Increment must be a finite non-negative number",
+    );
+  });
+
+  test("increment rejects non-numeric types", () => {
+    expect(() => counter.increment("x", "5")).toThrow(
+      "Increment must be a finite non-negative number",
+    );
+    expect(() => counter.increment("x", null)).toThrow(
+      "Increment must be a finite non-negative number",
+    );
+  });
+
+  test("decrement rejects NaN", () => {
+    expect(() => counter.decrement("a", NaN)).toThrow(
+      "Decrement must be a finite non-negative number",
+    );
+  });
+
+  test("decrement rejects Infinity", () => {
+    expect(() => counter.decrement("a", Infinity)).toThrow(
+      "Decrement must be a finite non-negative number",
+    );
+  });
 });
