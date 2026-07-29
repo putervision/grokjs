@@ -8,12 +8,7 @@ describe("AttentionMechanism Class", () => {
   });
 
   test("computeWeights returns normalized weights summing to 1.0", () => {
-    const weights = attention.computeWeights([
-      "hello",
-      "world",
-      "grok",
-      "model",
-    ]);
+    const weights = attention.computeWeights(["hello", "world", "grok", "model"]);
     expect(weights.length).toBe(4);
     const sum = weights.reduce((acc, val) => acc + val, 0);
     expect(sum).toBeCloseTo(1.0, 5);

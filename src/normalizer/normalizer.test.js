@@ -18,9 +18,7 @@ describe("Normalizer Class", () => {
   });
 
   test("stripAccents removes diacritics", () => {
-    expect(normalizer.stripAccents("Régime façade Crème")).toBe(
-      "Regime facade Creme",
-    );
+    expect(normalizer.stripAccents("Régime façade Crème")).toBe("Regime facade Creme");
   });
 
   test("caseFold converts to lower case", () => {
@@ -29,7 +27,7 @@ describe("Normalizer Class", () => {
 
   test("removeExtraWhitespace collapses whitespace", () => {
     expect(normalizer.removeExtraWhitespace("hello    world \n\n  again")).toBe(
-      "hello world again",
+      "hello world again"
     );
   });
 

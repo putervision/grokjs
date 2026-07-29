@@ -192,24 +192,16 @@ class LanguageModel {
     }
 
     const precision =
-      truePositives + falsePositives > 0
-        ? truePositives / (truePositives + falsePositives)
-        : 0;
+      truePositives + falsePositives > 0 ? truePositives / (truePositives + falsePositives) : 0;
     const recall =
-      truePositives + falseNegatives > 0
-        ? truePositives / (truePositives + falseNegatives)
-        : 0;
-    const f1Score =
-      precision + recall > 0
-        ? (2 * precision * recall) / (precision + recall)
-        : 0;
+      truePositives + falseNegatives > 0 ? truePositives / (truePositives + falseNegatives) : 0;
+    const f1Score = precision + recall > 0 ? (2 * precision * recall) / (precision + recall) : 0;
 
     const len = testData.length;
     return {
       averagePerplexity: totalPerplexity / len,
       averageBLEUScore: totalBLEU / len,
-      accuracy:
-        totalPredictions > 0 ? correctPredictions / totalPredictions : 0,
+      accuracy: totalPredictions > 0 ? correctPredictions / totalPredictions : 0,
       f1Score: f1Score,
     };
   }
@@ -423,9 +415,7 @@ class LanguageModel {
       }
     }
 
-    let magnitude = Math.sqrt(
-      embedding.reduce((sum, val) => sum + val * val, 0),
-    );
+    let magnitude = Math.sqrt(embedding.reduce((sum, val) => sum + val * val, 0));
     if (magnitude > 0) {
       return embedding.map((val) => val / magnitude);
     } else {

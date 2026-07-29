@@ -24,21 +24,15 @@ describe("Package Root Exports (index.js)", () => {
   test("Instantiates all exported classes successfully", () => {
     expect(new GrokJS.Normalizer()).toBeInstanceOf(GrokJS.Normalizer);
     expect(new GrokJS.Vocabulary()).toBeInstanceOf(GrokJS.Vocabulary);
-    expect(new GrokJS.FrequencyDistribution()).toBeInstanceOf(
-      GrokJS.FrequencyDistribution,
-    );
-    expect(new GrokJS.ProbabilityDistribution()).toBeInstanceOf(
-      GrokJS.ProbabilityDistribution,
-    );
+    expect(new GrokJS.FrequencyDistribution()).toBeInstanceOf(GrokJS.FrequencyDistribution);
+    expect(new GrokJS.ProbabilityDistribution()).toBeInstanceOf(GrokJS.ProbabilityDistribution);
     expect(new GrokJS.MarkovChain()).toBeInstanceOf(GrokJS.MarkovChain);
     expect(new GrokJS.Corpus()).toBeInstanceOf(GrokJS.Corpus);
     expect(new GrokJS.Embedding()).toBeInstanceOf(GrokJS.Embedding);
-    expect(new GrokJS.AttentionMechanism()).toBeInstanceOf(
-      GrokJS.AttentionMechanism,
-    );
+    expect(new GrokJS.AttentionMechanism()).toBeInstanceOf(GrokJS.AttentionMechanism);
     expect(new GrokJS.FactServer()).toBeInstanceOf(GrokJS.FactServer);
-    expect(
-      new GrokJS.FormAutocompleteEngine({ autoSave: false }),
-    ).toBeInstanceOf(GrokJS.FormAutocompleteEngine);
+    expect(new GrokJS.FormAutocompleteEngine({ autoSave: false })).toBeInstanceOf(
+      GrokJS.FormAutocompleteEngine
+    );
   });
 });

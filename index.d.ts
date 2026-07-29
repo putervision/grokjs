@@ -54,17 +54,11 @@ declare module "@putervision/grokjs" {
     context: Record<string, any>;
     train(text: string): void;
     predict(prefix: string, numPredictions?: number): string[];
-    generateText(
-      start: string,
-      length?: number,
-      options?: GenerationOptions,
-    ): string;
+    generateText(start: string, length?: number, options?: GenerationOptions): string;
     setContext(context: Record<string, any>): void;
     getVocabulary(): Set<string>;
     getVocabularySize(): number;
-    evaluate(
-      testData: Array<{ input: string; reference: string }>,
-    ): EvaluationResult;
+    evaluate(testData: Array<{ input: string; reference: string }>): EvaluationResult;
     bleuPrecision(candidate: string[], reference: string[]): number;
     saveModel(path: string): void;
     loadModel(path: string): void;
@@ -89,7 +83,7 @@ declare module "@putervision/grokjs" {
     };
     predictWithConfidence(
       prefix: string,
-      numPredictions?: number,
+      numPredictions?: number
     ): Array<{ word: string; probability: number; ngramLevel: number }>;
   }
 
@@ -139,12 +133,7 @@ declare module "@putervision/grokjs" {
   export class ProbabilityDistribution {
     constructor(freqDist?: FrequencyDistribution);
     mle(context: string, word: string): number;
-    laplace(
-      context: string,
-      word: string,
-      k?: number,
-      vocabSize?: number,
-    ): number;
+    laplace(context: string, word: string, k?: number, vocabSize?: number): number;
     stupidBackoff(context: string, word: string, alpha?: number): number;
     sample(context: string, temperature?: number): string;
   }
@@ -174,7 +163,7 @@ declare module "@putervision/grokjs" {
     split(
       trainRatio?: number,
       valRatio?: number,
-      testRatio?: number,
+      testRatio?: number
     ): {
       train: string[];
       val: string[];
@@ -188,13 +177,10 @@ declare module "@putervision/grokjs" {
     build(corpus: string[], dimensions?: number): void;
     getVector(word: string): number[];
     cosineSimilarity(wordA: string, wordB: string): number;
-    mostSimilar(
-      word: string,
-      topN?: number,
-    ): Array<{ word: string; similarity: number }>;
+    mostSimilar(word: string, topN?: number): Array<{ word: string; similarity: number }>;
     vectorArithmetic(
       positive: string[],
-      negative?: string[],
+      negative?: string[]
     ): Array<{ word: string; similarity: number }>;
   }
 
@@ -214,15 +200,11 @@ declare module "@putervision/grokjs" {
 
   export class EvaluationMetrics {
     static perplexity(model: LanguageModel, text: string): number;
-    static bleu(
-      candidate: string[],
-      reference: string[],
-      maxN?: number,
-    ): number;
+    static bleu(candidate: string[], reference: string[], maxN?: number): number;
     static rougeL(candidate: string[], reference: string[]): number;
     static precisionRecallF1(
       predicted: string[],
-      actual: string[],
+      actual: string[]
     ): {
       precision: number;
       recall: number;
@@ -244,19 +226,19 @@ declare module "@putervision/grokjs" {
       model: LanguageModel,
       prompt: string,
       length?: number,
-      options?: GenerationOptions,
+      options?: GenerationOptions
     ): string;
     static beamSearch(
       model: LanguageModel,
       prompt: string,
       length?: number,
-      beamWidth?: number,
+      beamWidth?: number
     ): string;
     static *generateStream(
       model: LanguageModel,
       prompt: string,
       length?: number,
-      options?: GenerationOptions,
+      options?: GenerationOptions
     ): AsyncGenerator<string>;
   }
 
@@ -265,7 +247,7 @@ declare module "@putervision/grokjs" {
     addFact(category: string, key: string, value: string): void;
     queryFacts(
       query: string,
-      topN?: number,
+      topN?: number
     ): Array<{
       category: string;
       key: string;

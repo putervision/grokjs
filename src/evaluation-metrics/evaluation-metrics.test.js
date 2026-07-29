@@ -3,16 +3,10 @@ const LanguageModel = require("../language-model/language-model");
 
 describe("EvaluationMetrics Class", () => {
   test("bleu calculates precision score with brevity penalty", () => {
-    const scoreExact = EvaluationMetrics.bleu(
-      ["hello", "world"],
-      ["hello", "world"],
-    );
+    const scoreExact = EvaluationMetrics.bleu(["hello", "world"], ["hello", "world"]);
     expect(scoreExact).toBeCloseTo(1.0, 4);
 
-    const scorePartial = EvaluationMetrics.bleu(
-      ["hello", "there"],
-      ["hello", "world"],
-    );
+    const scorePartial = EvaluationMetrics.bleu(["hello", "there"], ["hello", "world"]);
     expect(scorePartial).toBeLessThan(1.0);
   });
 

@@ -25,6 +25,7 @@ We take security seriously. If you discover a security vulnerability, please rep
 ## Dependencies
 
 This project uses:
+
 - `franc-cjs` — Language detection (read-only, no network calls)
 - `browserify`, `jest`, `prettier` — Dev dependencies only
 

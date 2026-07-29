@@ -75,9 +75,7 @@ class Embedding {
       // Normalize to unit length
       const magnitude = Math.sqrt(vector.reduce((sum, v) => sum + v * v, 0));
       const normalized =
-        magnitude > 0
-          ? vector.map((v) => v / magnitude)
-          : this._pseudoRandomVector(word);
+        magnitude > 0 ? vector.map((v) => v / magnitude) : this._pseudoRandomVector(word);
 
       this.vectors.set(word, normalized);
     }
@@ -172,7 +170,7 @@ class Embedding {
     const normVec = mag > 0 ? targetVec.map((v) => v / mag) : targetVec;
 
     const excludeSet = new Set(
-      [...(positive || []), ...(negative || [])].map((w) => w.toLowerCase()),
+      [...(positive || []), ...(negative || [])].map((w) => w.toLowerCase())
     );
     const results = [];
 

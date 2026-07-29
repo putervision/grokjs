@@ -68,9 +68,7 @@ describe("Counter", () => {
   test("elements returns all items according to their counts", () => {
     let elements = counter.elements();
     expect(elements).toHaveLength(6);
-    expect(elements).toEqual(
-      expect.arrayContaining(["a", "a", "b", "b", "b", "c"]),
-    );
+    expect(elements).toEqual(expect.arrayContaining(["a", "a", "b", "b", "b", "c"]));
   });
 
   test("subtract creates a new counter with correct subtraction", () => {
@@ -88,40 +86,40 @@ describe("Counter", () => {
 
   test("increment rejects NaN", () => {
     expect(() => counter.increment("x", NaN)).toThrow(
-      "Increment must be a finite non-negative number",
+      "Increment must be a finite non-negative number"
     );
   });
 
   test("increment rejects Infinity", () => {
     expect(() => counter.increment("x", Infinity)).toThrow(
-      "Increment must be a finite non-negative number",
+      "Increment must be a finite non-negative number"
     );
   });
 
   test("increment rejects negative numbers", () => {
     expect(() => counter.increment("x", -1)).toThrow(
-      "Increment must be a finite non-negative number",
+      "Increment must be a finite non-negative number"
     );
   });
 
   test("increment rejects non-numeric types", () => {
     expect(() => counter.increment("x", "5")).toThrow(
-      "Increment must be a finite non-negative number",
+      "Increment must be a finite non-negative number"
     );
     expect(() => counter.increment("x", null)).toThrow(
-      "Increment must be a finite non-negative number",
+      "Increment must be a finite non-negative number"
     );
   });
 
   test("decrement rejects NaN", () => {
     expect(() => counter.decrement("a", NaN)).toThrow(
-      "Decrement must be a finite non-negative number",
+      "Decrement must be a finite non-negative number"
     );
   });
 
   test("decrement rejects Infinity", () => {
     expect(() => counter.decrement("a", Infinity)).toThrow(
-      "Decrement must be a finite non-negative number",
+      "Decrement must be a finite non-negative number"
     );
   });
 });

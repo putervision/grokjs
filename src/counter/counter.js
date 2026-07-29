@@ -58,10 +58,7 @@ class Counter {
    * @return {number} - The total count
    */
   total() {
-    return Array.from(this.counter.values()).reduce(
-      (sum, count) => sum + count,
-      0,
-    );
+    return Array.from(this.counter.values()).reduce((sum, count) => sum + count, 0);
   }
 
   /**

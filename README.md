@@ -1,5 +1,6 @@
 # @putervision/grokjs
 
+[![CI](https://github.com/putervision/grokjs/actions/workflows/ci.yml/badge.svg)](https://github.com/putervision/grokjs/actions/workflows/ci.yml)
 [![npm version](https://img.shields.io/npm/v/@putervision/grokjs.svg)](https://www.npmjs.com/package/@putervision/grokjs)
 [![license](https://img.shields.io/npm/l/@putervision/grokjs.svg)](LICENSE)
 [![tests](https://img.shields.io/badge/tests-164%20passed-brightgreen.svg)](#testing)
@@ -112,18 +113,14 @@ Or run browser bundle directly:
 | `EvaluationMetrics`       | Benchmark       | Perplexity, BLEU (with brevity penalty), ROUGE-L, F1 Score, and Accuracy.            |
 | `InferenceEngine`         | Generation      | Greedy, Temperature, Top-K, Top-P (nucleus), Repetition Penalty, and Beam Search.    |
 | `FactServer`              | RAG / Knowledge | Key-value fact store and Retrieval-Augmented Generation (RAG) prompt injection.      |
-| `FormAutocompleteEngine`  | Autocomplete    | Self-learning DOM form autocomplete engine with continuous localStorage persistence.  |
+| `FormAutocompleteEngine`  | Autocomplete    | Self-learning DOM form autocomplete engine with continuous localStorage persistence. |
 
 ---
 
 ## Quick Start
 
 ```javascript
-const {
-  LanguageModel,
-  InferenceEngine,
-  FactServer,
-} = require("@putervision/grokjs");
+const { LanguageModel, InferenceEngine, FactServer } = require("@putervision/grokjs");
 
 // 1. Initialize Language Model
 const lm = new LanguageModel();
@@ -131,7 +128,7 @@ const lm = new LanguageModel();
 // 2. Train on sample corpus
 lm.train(
   "GrokJS is an open source JavaScript library for natural language processing. " +
-    "It supports n-gram language modeling, text generation, and retrieval augmented generation.",
+    "It supports n-gram language modeling, text generation, and retrieval augmented generation."
 );
 
 // 3. Predict next word
@@ -251,10 +248,7 @@ console.log(fd.count("hello", "world")); // 5
 Computes MLE, Laplace (Add-k) smoothing, Stupid Backoff, and softmax temperature sampling.
 
 ```javascript
-const {
-  ProbabilityDistribution,
-  FrequencyDistribution,
-} = require("@putervision/grokjs");
+const { ProbabilityDistribution, FrequencyDistribution } = require("@putervision/grokjs");
 const pd = new ProbabilityDistribution(fd);
 console.log(pd.laplace("hello", "world", 1, 1000));
 console.log(pd.sample("hello", 0.7));
@@ -294,10 +288,7 @@ Co-occurrence based vector space representation and similarity math.
 ```javascript
 const { Embedding } = require("@putervision/grokjs");
 const emb = new Embedding(10);
-emb.build([
-  "king queen prince princess royal kingdom",
-  "man woman boy girl human",
-]);
+emb.build(["king queen prince princess royal kingdom", "man woman boy girl human"]);
 console.log(emb.cosineSimilarity("king", "queen"));
 console.log(emb.mostSimilar("king", 3));
 ```
@@ -322,9 +313,7 @@ Standardized NLP benchmark metrics: Perplexity, BLEU, ROUGE-L, F1, Accuracy.
 ```javascript
 const { EvaluationMetrics } = require("@putervision/grokjs");
 console.log(EvaluationMetrics.bleu(["hello", "world"], ["hello", "world"])); // 1.0
-console.log(
-  EvaluationMetrics.rougeL(["the", "quick", "fox"], ["the", "fast", "fox"]),
-);
+console.log(EvaluationMetrics.rougeL(["the", "quick", "fox"], ["the", "fast", "fox"]));
 ```
 
 ### 14. InferenceEngine
@@ -375,15 +364,13 @@ Copy-paste this one-liner into your browser Developer Console (`F12` -> `Console
 
 ```javascript
 (function () {
-  if (window.__grokjs_autocomplete)
-    return console.log("GrokJS Autocomplete active.");
+  if (window.__grokjs_autocomplete) return console.log("GrokJS Autocomplete active.");
   function init() {
     if (window.GrokJS) {
-      window.__grokjs_autocomplete =
-        window.GrokJS.FormAutocompleteEngine.inject();
+      window.__grokjs_autocomplete = window.GrokJS.FormAutocompleteEngine.inject();
       console.log(
         "%cGrokJS Self-Learning Autocomplete Injected! Press Tab or Right Arrow to accept completions.",
-        "color:#38bdf8;font-size:14px;font-weight:bold;",
+        "color:#38bdf8;font-size:14px;font-weight:bold;"
       );
     } else {
       console.error("GrokJS failed to load.");
@@ -393,8 +380,7 @@ Copy-paste this one-liner into your browser Developer Console (`F12` -> `Console
     init();
   } else {
     const script = document.createElement("script");
-    script.src =
-      "https://cdn.jsdelivr.net/npm/@putervision/grokjs@1.2.0/dist/grokjs.bundle.js";
+    script.src = "https://cdn.jsdelivr.net/npm/@putervision/grokjs@1.2.0/dist/grokjs.bundle.js";
     script.onload = init;
     document.head.appendChild(script);
   }
@@ -408,11 +394,7 @@ Copy-paste this one-liner into your browser Developer Console (`F12` -> `Console
 Full TypeScript definitions are included out of the box (`index.d.ts`):
 
 ```typescript
-import {
-  LanguageModel,
-  GenerationOptions,
-  EvaluationResult,
-} from "@putervision/grokjs";
+import { LanguageModel, GenerationOptions, EvaluationResult } from "@putervision/grokjs";
 
 const lm: LanguageModel = new LanguageModel();
 lm.train("TypeScript support is fully integrated.");
@@ -500,6 +482,12 @@ For vulnerability reports, see [SECURITY.md](SECURITY.md).
 ## Changelog
 
 See [CHANGELOG.md](CHANGELOG.md) for version history.
+
+---
+
+## Contributing
+
+We welcome contributions! See [CONTRIBUTING.md](CONTRIBUTING.md) for setup instructions and code quality guidelines.
 
 ---
 

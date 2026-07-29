@@ -12,8 +12,7 @@ class Ngram {
 
     this.tokenizer = new Tokenizer();
 
-    if (this.debug)
-      console.log("Ngram constructor initialized with maxN:", this.maxN);
+    if (this.debug) console.log("Ngram constructor initialized with maxN:", this.maxN);
   }
 
   /**
@@ -58,9 +57,7 @@ class Ngram {
         // Increment the count for the next word following this n-gram
         this.ngrams[n - 1].get(ngram).increment(nextWord);
         if (this.debug)
-          console.log(
-            `Updated ${n}-gram for "${ngram}" with next word "${nextWord}"`,
-          );
+          console.log(`Updated ${n}-gram for "${ngram}" with next word "${nextWord}"`);
       }
     }
   }
@@ -72,13 +69,7 @@ class Ngram {
    */
   predictNextWord(prefix) {
     let tokens = this.tokenize(prefix);
-    if (this.debug)
-      console.log(
-        "Predicting next word for prefix:",
-        prefix,
-        "Tokens:",
-        tokens,
-      );
+    if (this.debug) console.log("Predicting next word for prefix:", prefix, "Tokens:", tokens);
 
     // Start from the largest possible n-gram and work downwards
     for (let n = Math.min(tokens.length, this.maxN); n > 0; n--) {
@@ -88,8 +79,7 @@ class Ngram {
       if (counter) {
         // Sort predictions by frequency and extract the words
         let sortedWords = counter.mostCommon().map(([word]) => word);
-        if (this.debug)
-          console.log(`Found ${n}-gram match for "${ngram}":`, sortedWords);
+        if (this.debug) console.log(`Found ${n}-gram match for "${ngram}":`, sortedWords);
         return sortedWords;
       }
     }

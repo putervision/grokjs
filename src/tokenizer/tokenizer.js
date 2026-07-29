@@ -51,9 +51,7 @@ class Tokenizer {
           detectedLang = "eng";
         }
       } else {
-        detectedLang = /[\u3040-\u30ff\u4e00-\u9faf]/.test(text)
-          ? "jpn"
-          : "eng";
+        detectedLang = /[\u3040-\u30ff\u4e00-\u9faf]/.test(text) ? "jpn" : "eng";
       }
     }
     const lang = detectedLang === "und" ? "eng" : detectedLang;
@@ -77,10 +75,7 @@ class Tokenizer {
       tokens = tokens.flatMap((token) => {
         for (let [contraction, expansion] of Object.entries(contractions)) {
           if (token.endsWith(contraction)) {
-            return token
-              .slice(0, -contraction.length)
-              .split(" ")
-              .concat(expansion.split(" "));
+            return token.slice(0, -contraction.length).split(" ").concat(expansion.split(" "));
           }
         }
         return [token];
@@ -89,10 +84,7 @@ class Tokenizer {
 
     if (this.removePunctuation && lang !== "jpn") {
       tokens = tokens.filter((token) => {
-        if (
-          /^(?:\d{4}|\d{2})[-/]\d{2}[-/]\d{2}$/.test(token) ||
-          /^\d+(?:\.\d+)?$/.test(token)
-        ) {
+        if (/^(?:\d{4}|\d{2})[-/]\d{2}[-/]\d{2}$/.test(token) || /^\d+(?:\.\d+)?$/.test(token)) {
           return true;
         }
         return !/[.,!?;:$]/.test(token);

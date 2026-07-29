@@ -43,11 +43,7 @@ class FormAutocompleteEngine {
 
     const isFirstRun = this.loadState();
 
-    if (
-      isFirstRun &&
-      this.options.showSetup &&
-      typeof document !== "undefined"
-    ) {
+    if (isFirstRun && this.options.showSetup && typeof document !== "undefined") {
       this.showSetupModal();
     }
   }
@@ -218,10 +214,7 @@ class FormAutocompleteEngine {
         return true;
       }
     } catch (e) {
-      console.warn(
-        "GrokJS FormAutocompleteEngine: Could not load saved state",
-        e,
-      );
+      console.warn("GrokJS FormAutocompleteEngine: Could not load saved state", e);
       this.preloadCorpora();
       return true;
     }
@@ -311,31 +304,25 @@ class FormAutocompleteEngine {
     document.body.appendChild(modal);
     this.modalElement = modal;
 
-    document
-      .getElementById("grokjs-start-btn")
-      .addEventListener("click", () => {
-        const presets = [];
-        if (document.getElementById("preset-email").checked)
-          presets.push("email");
-        if (document.getElementById("preset-developer").checked)
-          presets.push("developer");
-        if (document.getElementById("preset-casual").checked)
-          presets.push("casual");
+    document.getElementById("grokjs-start-btn").addEventListener("click", () => {
+      const presets = [];
+      if (document.getElementById("preset-email").checked) presets.push("email");
+      if (document.getElementById("preset-developer").checked) presets.push("developer");
+      if (document.getElementById("preset-casual").checked) presets.push("casual");
 
-        const customText = document.getElementById("custom-train-input").value;
-        this.preloadCorpora(presets, customText);
+      const customText = document.getElementById("custom-train-input").value;
+      this.preloadCorpora(presets, customText);
 
-        modal.remove();
-        this.modalElement = null;
-      });
+      modal.remove();
+      this.modalElement = null;
+    });
   }
 
   _isFormTarget(el) {
     if (!el) return false;
     const tagName = el.tagName ? el.tagName.toLowerCase() : "";
     const isInput =
-      tagName === "input" &&
-      ["text", "search", "url", "email", ""].includes(el.type || "");
+      tagName === "input" && ["text", "search", "url", "email", ""].includes(el.type || "");
     const isTextarea = tagName === "textarea";
     const isContentEditable = el.isContentEditable;
     return isInput || isTextarea || isContentEditable;
@@ -343,9 +330,7 @@ class FormAutocompleteEngine {
 
   _getValue(el) {
     if (!el) return "";
-    return el.isContentEditable
-      ? el.innerText || el.textContent || ""
-      : el.value || "";
+    return el.isContentEditable ? el.innerText || el.textContent || "" : el.value || "";
   }
 
   _setValue(el, val) {
@@ -385,10 +370,7 @@ class FormAutocompleteEngine {
     if (!currentSuggestion) return;
 
     // Tab or Right Arrow accepts autocomplete suggestion
-    if (
-      e.key === "Tab" ||
-      (e.key === "ArrowRight" && this._isCursorAtEnd(this.activeElement))
-    ) {
+    if (e.key === "Tab" || (e.key === "ArrowRight" && this._isCursorAtEnd(this.activeElement))) {
       e.preventDefault();
       const val = this._getValue(this.activeElement);
       const parts = val.split(/\s+/);
@@ -471,9 +453,7 @@ class FormAutocompleteEngine {
       document.body.appendChild(div);
       this.tooltipElement = div;
     } else {
-      this.tooltipElement = document.getElementById(
-        "grokjs-autocomplete-tooltip",
-      );
+      this.tooltipElement = document.getElementById("grokjs-autocomplete-tooltip");
     }
   }
 
@@ -482,8 +462,7 @@ class FormAutocompleteEngine {
 
     const rect = el.getBoundingClientRect();
     const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-    const scrollLeft =
-      window.pageXOffset || document.documentElement.scrollLeft;
+    const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
 
     const safeSuggestion = String(suggestion || "")
       .replace(/&/g, "&amp;")

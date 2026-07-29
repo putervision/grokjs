@@ -26,10 +26,7 @@ describe("Ngram", () => {
       "are",
       "you",
     ]);
-    expect(ngram.tokenize("  Multiple   spaces   ")).toEqual([
-      "multiple",
-      "spaces",
-    ]);
+    expect(ngram.tokenize("  Multiple   spaces   ")).toEqual(["multiple", "spaces"]);
     expect(ngram.tokenize("Punctuation!@#$%^&*()")[0]).toEqual("punctuation");
     expect(ngram.tokenize("")).toEqual([]); // Empty string
     expect(ngram.tokenize("   ")).toEqual([]); // Only spaces
@@ -50,16 +47,7 @@ describe("Ngram", () => {
   });
 
   test("predictNextWord handles different n-gram levels", () => {
-    ngram.updateModel([
-      "hello",
-      "world",
-      "how",
-      "are",
-      "you",
-      "hello",
-      "world",
-      "again",
-    ]);
+    ngram.updateModel(["hello", "world", "how", "are", "you", "hello", "world", "again"]);
 
     // Test for 3-gram prediction
     let predictions = ngram.predictNextWord("hello world how");

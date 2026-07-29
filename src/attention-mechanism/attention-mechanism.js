@@ -83,9 +83,7 @@ class AttentionMechanism {
    * @return {Array<{ token: string, focusScore: number }>} - Tokens ranked by focus score
    */
   aggregateFocus(sequence) {
-    const tokens = Array.isArray(sequence)
-      ? sequence
-      : this.tokenizer.tokenize(String(sequence));
+    const tokens = Array.isArray(sequence) ? sequence : this.tokenizer.tokenize(String(sequence));
     const weights = this.computeWeights(tokens);
 
     return tokens.map((token, i) => ({

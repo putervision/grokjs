@@ -11,7 +11,7 @@ jest.mock("fs", () => ({
       maxN: 5,
       vocabulary: ["hello", "world"],
       context: {},
-    }),
+    })
   ),
 }));
 
@@ -101,10 +101,7 @@ describe("LanguageModel", () => {
 
   test("saveModel calls writeFileSync", () => {
     languageModel.saveModel("testPath.json");
-    expect(fs.writeFileSync).toHaveBeenCalledWith(
-      "testPath.json",
-      expect.any(String),
-    );
+    expect(fs.writeFileSync).toHaveBeenCalledWith("testPath.json", expect.any(String));
   });
 
   test("loadModel loads and initializes model", () => {
@@ -149,9 +146,7 @@ describe("LanguageModel", () => {
     languageModel.fineTune("hello world", 0.5);
     // Since we're not actually changing the structure, we'll check if train was called
     // This is a mock check since the actual implementation would be more complex
-    expect(
-      languageModel.ngram.ngrams[0].get("hello").get("world"),
-    ).toBeGreaterThan(0);
+    expect(languageModel.ngram.ngrams[0].get("hello").get("world")).toBeGreaterThan(0);
   });
 
   test("getEmbeddings returns an embedding", () => {
@@ -233,21 +228,15 @@ describe("General LanguageModel Tests", () => {
   // Test model persistence
   test("model can save and load state", () => {
     const realFs = jest.requireActual("fs");
-    jest
-      .spyOn(fs, "writeFileSync")
-      .mockImplementation((p, data) => realFs.writeFileSync(p, data));
-    jest
-      .spyOn(fs, "readFileSync")
-      .mockImplementation((p) => realFs.readFileSync(p, "utf8"));
+    jest.spyOn(fs, "writeFileSync").mockImplementation((p, data) => realFs.writeFileSync(p, data));
+    jest.spyOn(fs, "readFileSync").mockImplementation((p) => realFs.readFileSync(p, "utf8"));
 
     const testPath = "testModel.json";
     languageModel.train("hello world how are you");
     languageModel.saveModel(testPath);
     const newModel = new LanguageModel();
     newModel.loadModel(testPath);
-    expect(newModel.getVocabularySize()).toBe(
-      languageModel.getVocabularySize(),
-    );
+    expect(newModel.getVocabularySize()).toBe(languageModel.getVocabularySize());
     if (realFs.existsSync(testPath)) realFs.unlinkSync(testPath);
   });
 
@@ -295,13 +284,9 @@ describe("General LanguageModel Tests", () => {
 
   // Test fine-tuning functionality
   test("model can be fine-tuned", () => {
-    const initialCount = languageModel.ngram.ngrams[0]
-      .get("hello")
-      .get("world");
+    const initialCount = languageModel.ngram.ngrams[0].get("hello").get("world");
     languageModel.fineTune("hello world", 0.1);
-    const updatedCount = languageModel.ngram.ngrams[0]
-      .get("hello")
-      .get("world");
+    const updatedCount = languageModel.ngram.ngrams[0].get("hello").get("world");
     expect(updatedCount).not.toBe(initialCount);
   });
 
@@ -321,22 +306,18 @@ describe("LanguageModel - fineTune", () => {
 
   test("throws error for invalid learning rate", () => {
     expect(() => languageModel.fineTune("test text", -0.1)).toThrow(
-      "Learning rate must be between 0 and 1",
+      "Learning rate must be between 0 and 1"
     );
     expect(() => languageModel.fineTune("test text", 1.1)).toThrow(
-      "Learning rate must be between 0 and 1",
+      "Learning rate must be between 0 and 1"
     );
   });
 
   test("fineTune increases count for new text with small learning rate", () => {
-    const initialCount = languageModel.ngram.ngrams[0]
-      .get("hello")
-      .get("world");
+    const initialCount = languageModel.ngram.ngrams[0].get("hello").get("world");
     languageModel.fineTune("hello world new", 0.1);
 
-    const updatedCount = languageModel.ngram.ngrams[0]
-      .get("hello")
-      .get("world");
+    const updatedCount = languageModel.ngram.ngrams[0].get("hello").get("world");
     expect(updatedCount).toBeGreaterThan(initialCount);
   });
 
@@ -366,24 +347,18 @@ describe("LanguageModel - fineTune", () => {
   });
 
   test("fineTune respects the learning rate", () => {
-    const initialCount = languageModel.ngram.ngrams[0]
-      .get("hello")
-      .get("world");
+    const initialCount = languageModel.ngram.ngrams[0].get("hello").get("world");
     languageModel.fineTune("hello world", 0.1);
-    const smallAdjustment = languageModel.ngram.ngrams[0]
-      .get("hello")
-      .get("world");
+    const smallAdjustment = languageModel.ngram.ngrams[0].get("hello").get("world");
 
     languageModel.clearModel();
     languageModel.train("hello world how are you hello world again");
     languageModel.fineTune("hello world", 0.5);
-    const largeAdjustment = languageModel.ngram.ngrams[0]
-      .get("hello")
-      .get("world");
+    const largeAdjustment = languageModel.ngram.ngrams[0].get("hello").get("world");
 
     // Expect larger adjustment with higher learning rate
     expect(Math.abs(largeAdjustment - initialCount)).toBeGreaterThan(
-      Math.abs(smallAdjustment - initialCount),
+      Math.abs(smallAdjustment - initialCount)
     );
   });
 
@@ -405,9 +380,7 @@ describe("LanguageModel - fineTune", () => {
   test("fineTune handles empty text", () => {
     languageModel.fineTune("", 0.1);
     // Since no new data was added, counts should remain the same or slightly adjusted
-    expect(
-      languageModel.ngram.ngrams[0].get("hello").get("world"),
-    ).toBeGreaterThan(0);
+    expect(languageModel.ngram.ngrams[0].get("hello").get("world")).toBeGreaterThan(0);
   });
 
   test("fineTune with learning rate of 0 does not change model", () => {
@@ -433,9 +406,7 @@ describe("LanguageModel - attentionWeights", () => {
     expect(weights).toHaveProperty("weights");
     expect(Array.isArray(weights.weights)).toBe(true);
     // Now we can check if the weights are normalized and sum to 1
-    expect(
-      weights.weights.reduce((sum, weight) => sum + weight, 0),
-    ).toBeCloseTo(1, 5);
+    expect(weights.weights.reduce((sum, weight) => sum + weight, 0)).toBeCloseTo(1, 5);
   });
 
   test("attentionWeights handles short input", () => {
@@ -494,9 +465,7 @@ describe("LanguageModel - evaluate", () => {
 
     // Check if the values are within reasonable ranges
     expect(result.averagePerplexity).toBeGreaterThan(0);
-    expect(result.averageBLEUScore >= 0 && result.averageBLEUScore <= 1).toBe(
-      true,
-    );
+    expect(result.averageBLEUScore >= 0 && result.averageBLEUScore <= 1).toBe(true);
     expect(result.accuracy >= 0 && result.accuracy <= 1).toBe(true);
     expect(result.f1Score >= 0 && result.f1Score <= 1).toBe(true);
   });
@@ -546,9 +515,7 @@ describe("LanguageModel - evaluate", () => {
 
     // Since 'hello world' is part of 'hello world how', we expect a good but not perfect score
     const result = languageModel.evaluate(testData);
-    expect(result.averageBLEUScore >= 0 && result.averageBLEUScore <= 1).toBe(
-      true,
-    );
+    expect(result.averageBLEUScore >= 0 && result.averageBLEUScore <= 1).toBe(true);
   });
 
   test("evaluate F1 score with presence of target word", () => {
@@ -595,9 +562,7 @@ describe("LanguageModel - getEmbeddings", () => {
 
   test("getEmbeddings normalizes the vector", () => {
     const embedding = languageModel.getEmbeddings("how");
-    const magnitude = Math.sqrt(
-      embedding.reduce((sum, val) => sum + val * val, 0),
-    );
+    const magnitude = Math.sqrt(embedding.reduce((sum, val) => sum + val * val, 0));
     expect(magnitude).toBeCloseTo(1, 5); // Check if the vector is normalized to unit length
   });
 
@@ -638,9 +603,7 @@ describe("LanguageModel - getEmbeddings", () => {
     });
 
     const embedding = languageModel.getEmbeddings("you");
-    const magnitude = Math.sqrt(
-      embedding.reduce((sum, val) => sum + val * val, 0),
-    );
+    const magnitude = Math.sqrt(embedding.reduce((sum, val) => sum + val * val, 0));
     expect(magnitude).toBeCloseTo(1, 5); // Should still return a normalized vector
   });
 });

@@ -6,9 +6,7 @@ describe("InferenceEngine Class", () => {
 
   beforeEach(() => {
     lm = new LanguageModel();
-    lm.train(
-      "grokjs is an open source language model library for javascript developers",
-    );
+    lm.train("grokjs is an open source language model library for javascript developers");
   });
 
   test("generate performs text continuation", () => {

@@ -14,7 +14,7 @@ jest.mock("fs", () => ({
       maxN: 3,
       vocabulary: ["hello", "world", "how", "are", "you"],
       context: {},
-    }),
+    })
   ),
 }));
 
@@ -69,10 +69,7 @@ describe("Integrated Test Suite for Counter, LanguageModel, and Ngram", () => {
   test("Model persistence", () => {
     languageModel.train("hello world");
     languageModel.saveModel("testModel.json");
-    expect(fs.writeFileSync).toHaveBeenCalledWith(
-      "testModel.json",
-      expect.any(String),
-    );
+    expect(fs.writeFileSync).toHaveBeenCalledWith("testModel.json", expect.any(String));
 
     const newModel = new LanguageModel(new Ngram(3));
     newModel.loadModel("testModel.json");
@@ -118,9 +115,7 @@ describe("Integrated Test Suite for Counter, LanguageModel, and Ngram", () => {
     expect(attention).toHaveProperty("weights");
     expect(Array.isArray(attention.weights)).toBe(true);
     // Check if the weights sum to 1
-    expect(
-      attention.weights.reduce((sum, weight) => sum + weight, 0),
-    ).toBeCloseTo(1, 5);
+    expect(attention.weights.reduce((sum, weight) => sum + weight, 0)).toBeCloseTo(1, 5);
   });
 
   // Test explanation for predictions

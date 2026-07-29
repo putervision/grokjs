@@ -40,31 +40,14 @@ describe("Tokenizer", () => {
   test("Tokenizes English text", () => {
     const text = "The quick brown fox jumps over the lazy dog.";
     const tokens = tokenizer.tokenize(text);
-    expect(tokens).toEqual([
-      "the",
-      "quick",
-      "brown",
-      "fox",
-      "jumps",
-      "over",
-      "the",
-      "lazy",
-      "dog",
-    ]);
+    expect(tokens).toEqual(["the", "quick", "brown", "fox", "jumps", "over", "the", "lazy", "dog"]);
   });
 
   // Test language-specific tokenization (German)
   test("Tokenizes German text with compound words", () => {
     const text = "Das ist ein Test-satz mit Bindestrichen.";
     const tokens = tokenizer.tokenize(text);
-    expect(tokens).toEqual([
-      "das",
-      "ist",
-      "ein",
-      "test-satz",
-      "mit",
-      "bindestrichen",
-    ]);
+    expect(tokens).toEqual(["das", "ist", "ein", "test-satz", "mit", "bindestrichen"]);
   });
 
   // Test language-specific tokenization (Japanese)
@@ -105,15 +88,7 @@ describe("Tokenizer", () => {
   test("Handles numbers and dates", () => {
     const text = "Today is 2023-02-04. The price is $10.99.";
     const tokens = tokenizer.tokenize(text);
-    expect(tokens).toEqual([
-      "today",
-      "is",
-      "2023-02-04",
-      "the",
-      "price",
-      "is",
-      "10.99",
-    ]);
+    expect(tokens).toEqual(["today", "is", "2023-02-04", "the", "price", "is", "10.99"]);
   });
 
   // Test special tokens

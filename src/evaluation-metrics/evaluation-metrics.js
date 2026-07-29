@@ -14,9 +14,7 @@ class EvaluationMetrics {
       return NaN;
     }
 
-    const tokens = model.tokenize
-      ? model.tokenize(text)
-      : text.trim().split(/\s+/);
+    const tokens = model.tokenize ? model.tokenize(text) : text.trim().split(/\s+/);
     if (tokens.length === 0) return NaN;
 
     let logProbSum = 0;
@@ -25,9 +23,7 @@ class EvaluationMetrics {
     for (let i = 0; i < tokens.length; i++) {
       const contextTokens = tokens.slice(Math.max(0, i - maxN + 1), i);
       const context = contextTokens.join(" ");
-      const prob = model.getProbability
-        ? model.getProbability(tokens[i], context)
-        : 0.001;
+      const prob = model.getProbability ? model.getProbability(tokens[i], context) : 0.001;
 
       if (prob > 0) {
         logProbSum += Math.log(prob);
@@ -69,10 +65,8 @@ class EvaluationMetrics {
         totalCandNgrams += candCount;
       }
 
-      const precision =
-        totalCandNgrams > 0 ? clippedMatches / totalCandNgrams : 0;
-      logPrecisionSum +=
-        precision > 0 ? Math.log(precision) : Math.log(Number.EPSILON);
+      const precision = totalCandNgrams > 0 ? clippedMatches / totalCandNgrams : 0;
+      logPrecisionSum += precision > 0 ? Math.log(precision) : Math.log(Number.EPSILON);
     }
 
     const geoMeanPrecision = Math.exp(logPrecisionSum / effectiveN);
@@ -128,10 +122,7 @@ class EvaluationMetrics {
 
     const precision = tp / predSet.size;
     const recall = tp / actualSet.size;
-    const f1Score =
-      precision + recall > 0
-        ? (2 * precision * recall) / (precision + recall)
-        : 0;
+    const f1Score = precision + recall > 0 ? (2 * precision * recall) / (precision + recall) : 0;
 
     return { precision, recall, f1Score };
   }

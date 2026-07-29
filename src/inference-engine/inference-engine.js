@@ -30,9 +30,7 @@ class InferenceEngine {
     };
 
     let generated = prompt;
-    const generatedTokens = model.tokenize
-      ? model.tokenize(prompt)
-      : prompt.split(/\s+/);
+    const generatedTokens = model.tokenize ? model.tokenize(prompt) : prompt.split(/\s+/);
     const maxN = model.maxN || 5;
 
     for (let i = 0; i < length; i++) {
@@ -46,7 +44,7 @@ class InferenceEngine {
         currentPrefix,
         candidates,
         generatedTokens,
-        opts,
+        opts
       );
 
       if (!nextToken) break;
@@ -74,9 +72,7 @@ class InferenceEngine {
   static beamSearch(model, prompt, length = 5, beamWidth = 3) {
     if (!model || typeof prompt !== "string") return prompt || "";
 
-    const initialTokens = model.tokenize
-      ? model.tokenize(prompt)
-      : prompt.split(/\s+/);
+    const initialTokens = model.tokenize ? model.tokenize(prompt) : prompt.split(/\s+/);
     const maxN = model.maxN || 5;
 
     let beams = [{ tokens: [...initialTokens], text: prompt, score: 0.0 }];
@@ -86,14 +82,10 @@ class InferenceEngine {
 
       for (const beam of beams) {
         const prefix = beam.tokens.slice(-maxN).join(" ");
-        const predictions = model.predict
-          ? model.predict(prefix, beamWidth * 2)
-          : [];
+        const predictions = model.predict ? model.predict(prefix, beamWidth * 2) : [];
 
         for (const word of predictions) {
-          const prob = model.getProbability
-            ? model.getProbability(word, prefix)
-            : 0.1;
+          const prob = model.getProbability ? model.getProbability(word, prefix) : 0.1;
           const logProb = Math.log(prob > 0 ? prob : Number.EPSILON);
           candidates.push({
             tokens: [...beam.tokens, word],
@@ -136,9 +128,7 @@ class InferenceEngine {
       ...options,
     };
 
-    const generatedTokens = model.tokenize
-      ? model.tokenize(prompt)
-      : prompt.split(/\s+/);
+    const generatedTokens = model.tokenize ? model.tokenize(prompt) : prompt.split(/\s+/);
     const maxN = model.maxN || 5;
 
     yield prompt;
@@ -154,7 +144,7 @@ class InferenceEngine {
         currentPrefix,
         candidates,
         generatedTokens,
-        opts,
+        opts
       );
 
       if (!nextToken) break;
@@ -176,9 +166,7 @@ class InferenceEngine {
 
     // Assign probability scores to candidates
     let scored = candidates.map((word) => {
-      let prob = model.getProbability
-        ? model.getProbability(word, context)
-        : 1 / candidates.length;
+      let prob = model.getProbability ? model.getProbability(word, context) : 1 / candidates.length;
       if (prob <= 0) prob = 0.001;
 
       // Apply repetition penalty

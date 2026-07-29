@@ -13,10 +13,7 @@ describe("FormAutocompleteEngine Class with Pre-Training", () => {
   });
 
   test("preloadCorpora preloads preset corpora and custom text", () => {
-    engine.preloadCorpora(
-      ["email", "developer"],
-      "Custom training notes for testing.",
-    );
+    engine.preloadCorpora(["email", "developer"], "Custom training notes for testing.");
     expect(engine.model.vocabulary.has("email")).toBe(false); // tokenized lowercased words
     expect(engine.model.vocabulary.has("attached")).toBe(true);
     expect(engine.model.vocabulary.has("testing")).toBe(true);
