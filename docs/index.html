@@ -258,11 +258,11 @@
             <p style="font-size: 0.88rem; color: var(--text-secondary); margin-bottom: 1rem;">Select or drop <code>.txt</code>, <code>.md</code>, <code>.json</code>, or <code>.csv</code> files to train the in-browser LM:</p>
             
             <div id="drop-zone" style="border: 2px dashed #38bdf8; border-radius: 12px; padding: 1.5rem 1rem; text-align: center; background: rgba(56, 189, 248, 0.05); cursor: pointer; transition: all 0.2s ease; margin-bottom: 1rem; min-height: 120px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-              <div style="font-size: 1.8rem; margin-bottom: 0.3rem;">📄</div>
-              <div style="font-size: 0.9rem; font-weight: 600; color: #f8fafc;">Drag & drop text documents here</div>
-              <div style="font-size: 0.78rem; color: #94a3b8; margin-top: 0.2rem;">or click to browse from device</div>
-              <input type="file" id="file-picker" accept=".txt,.md,.csv,.json" multiple style="display: none;">
+              <div style="font-size: 1.8rem; margin-bottom: 0.3rem; pointer-events: none;">📄</div>
+              <div style="font-size: 0.9rem; font-weight: 600; color: #f8fafc; pointer-events: none;">Drag & drop text documents here</div>
+              <div style="font-size: 0.78rem; color: #94a3b8; margin-top: 0.2rem; pointer-events: none;">or click to browse from device</div>
             </div>
+            <input type="file" id="file-picker" accept=".txt,.md,.csv,.json" multiple style="display: none;">
           </div>
 
           <div id="upload-status" style="font-size: 0.85rem; color: #38bdf8; font-weight: 600; min-height: 24px; text-align: center;"></div>
@@ -728,21 +728,30 @@ console.log(output);</code></pre>
       const checkpointPicker = document.getElementById("checkpoint-file-picker");
 
       let studioDocsProcessed = 0;
-      const studioModel = (window.GrokJS && window.GrokJS.LanguageModel) ? new window.GrokJS.LanguageModel() : null;
+      let studioModel = (window.GrokJS && window.GrokJS.LanguageModel) ? new window.GrokJS.LanguageModel() : null;
+
+      function getStudioModel() {
+        if (!studioModel && window.GrokJS && window.GrokJS.LanguageModel) {
+          studioModel = new window.GrokJS.LanguageModel();
+        }
+        return studioModel;
+      }
 
       function updateStudioCounters() {
-        if (!studioModel) return;
-        if (vocabCountEl) vocabCountEl.textContent = studioModel.getVocabularySize().toLocaleString();
+        const model = getStudioModel();
+        if (!model) return;
+        if (vocabCountEl) vocabCountEl.textContent = model.getVocabularySize().toLocaleString();
         if (docsCountEl) docsCountEl.textContent = studioDocsProcessed.toLocaleString();
       }
 
       function trainFromFile(file) {
-        if (!file || !studioModel) return;
+        const model = getStudioModel();
+        if (!file || !model) return;
         const reader = new FileReader();
         reader.onload = (e) => {
           const content = e.target.result;
           if (typeof content === "string" && content.trim()) {
-            studioModel.train(content);
+            model.train(content);
             studioDocsProcessed++;
             updateStudioCounters();
             if (uploadStatus) {
@@ -761,36 +770,59 @@ console.log(output);</code></pre>
       }
 
       if (dropZone && filePicker) {
-        dropZone.addEventListener("click", () => filePicker.click());
+        filePicker.addEventListener("click", (e) => {
+          e.stopPropagation();
+        });
+
+        dropZone.addEventListener("click", (e) => {
+          if (e.target !== filePicker) {
+            filePicker.click();
+          }
+        });
+
         filePicker.addEventListener("change", (e) => {
           const files = Array.from(e.target.files || []);
           files.forEach(trainFromFile);
+          filePicker.value = "";
         });
 
-        dropZone.addEventListener("dragover", (e) => {
+        const preventDefaults = (e) => {
           e.preventDefault();
-          dropZone.style.borderColor = "#22c55e";
-          dropZone.style.background = "rgba(34, 197, 94, 0.1)";
+          e.stopPropagation();
+        };
+
+        ["dragenter", "dragover"].forEach((eventName) => {
+          dropZone.addEventListener(eventName, (e) => {
+            preventDefaults(e);
+            if (e.dataTransfer) e.dataTransfer.dropEffect = "copy";
+            dropZone.style.borderColor = "#22c55e";
+            dropZone.style.background = "rgba(34, 197, 94, 0.1)";
+          });
         });
 
-        dropZone.addEventListener("dragleave", () => {
-          dropZone.style.borderColor = "#38bdf8";
-          dropZone.style.background = "rgba(56, 189, 248, 0.05)";
+        dropZone.addEventListener("dragleave", (e) => {
+          preventDefaults(e);
+          if (!e.relatedTarget || !dropZone.contains(e.relatedTarget)) {
+            dropZone.style.borderColor = "#38bdf8";
+            dropZone.style.background = "rgba(56, 189, 248, 0.05)";
+          }
         });
 
         dropZone.addEventListener("drop", (e) => {
-          e.preventDefault();
+          preventDefaults(e);
           dropZone.style.borderColor = "#38bdf8";
           dropZone.style.background = "rgba(56, 189, 248, 0.05)";
-          const files = Array.from(e.dataTransfer.files || []);
+          const files = Array.from(e.dataTransfer?.files || []);
           files.forEach(trainFromFile);
         });
       }
 
       // Export JSON Checkpoint
-      if (exportBtn && studioModel) {
+      if (exportBtn) {
         exportBtn.addEventListener("click", () => {
-          const state = studioModel.exportState();
+          const model = getStudioModel();
+          if (!model) return;
+          const state = model.exportState();
           const jsonStr = JSON.stringify(state, null, 2);
           const blob = new Blob([jsonStr], { type: "application/json" });
           const url = URL.createObjectURL(blob);
@@ -809,15 +841,18 @@ console.log(output);</code></pre>
       }
 
       // Import JSON Checkpoint
-      if (importTrigger && checkpointPicker && studioModel) {
+      if (importTrigger && checkpointPicker) {
+        checkpointPicker.addEventListener("click", (e) => e.stopPropagation());
         importTrigger.addEventListener("click", () => checkpointPicker.click());
         checkpointPicker.addEventListener("change", (e) => {
           const file = e.target.files[0];
           if (!file) return;
+          const model = getStudioModel();
+          if (!model) return;
           const reader = new FileReader();
           reader.onload = (evt) => {
             try {
-              studioModel.importState(evt.target.result);
+              model.importState(evt.target.result);
               updateStudioCounters();
               if (uploadStatus) {
                 uploadStatus.textContent = `📤 Restored model checkpoint from "${file.name}"!`;
@@ -829,9 +864,11 @@ console.log(output);</code></pre>
                 uploadStatus.style.color = "#ef4444";
               }
             }
+            checkpointPicker.value = "";
           };
           reader.readAsText(file);
         });
+      }
       // Interactive Checkpoint Inference & Autocomplete Widget Logic
       const checkpointField = document.getElementById("checkpoint-input-field");
       const predictionsWrap = document.getElementById("checkpoint-predictions-wrap");
