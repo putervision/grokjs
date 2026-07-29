@@ -1,6 +1,6 @@
 {
   "name": "@putervision/grokjs",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "A JavaScript implementation of a basic Language Model (LM) and utilities designed to facilitate natural language processing tasks, inspired by advanced models like xAI's Grok. (not affiliated with xAI)",
   "keywords": [
     "language-model",

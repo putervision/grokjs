@@ -217,10 +217,10 @@ class LanguageModel {
   }
 
   /**
-   * Saves the current state of the model to a JSON file.
-   * @param {string} path - Path where to save the model
+   * Serializes the current model state into a plain JSON-serializable object.
+   * @return {Object} - Model state object
    */
-  saveModel(path) {
+  exportState() {
     const serializedNgrams = this.ngram.ngrams.map((map) => {
       const obj = {};
       for (let [key, counter] of map.entries()) {
@@ -229,21 +229,23 @@ class LanguageModel {
       return obj;
     });
 
-    const modelState = {
+    return {
+      version: "1.2.1",
       maxN: this.maxN,
       ngrams: serializedNgrams,
       vocabulary: Array.from(this.vocabulary),
       context: this.context,
     };
-    fs.writeFileSync(path, JSON.stringify(modelState, null, 2));
   }
 
   /**
-   * Loads a previously saved model state from a file.
-   * @param {string} path - Path from where to load the model
+   * Imports a model state from a JSON string or state object.
+   * @param {Object|string} state - Model state object or JSON string
    */
-  loadModel(path) {
-    const modelState = JSON.parse(fs.readFileSync(path, "utf8"));
+  importState(state) {
+    const modelState = typeof state === "string" ? JSON.parse(state) : state;
+    if (!modelState) return;
+
     this.maxN = modelState.maxN || 5;
     this.ngram = new Ngram(this.maxN);
     this.vocabulary = new Set(modelState.vocabulary || []);
@@ -276,6 +278,27 @@ class LanguageModel {
           this.ngram.ngrams[index] = map;
         }
       });
+    }
+  }
+
+  /**
+   * Saves the current state of the model to a JSON file.
+   * @param {string} path - Path where to save the model
+   */
+  saveModel(path) {
+    if (typeof fs !== "undefined" && fs.writeFileSync) {
+      fs.writeFileSync(path, JSON.stringify(this.exportState(), null, 2));
+    }
+  }
+
+  /**
+   * Loads a previously saved model state from a file.
+   * @param {string} path - Path from where to load the model
+   */
+  loadModel(path) {
+    if (typeof fs !== "undefined" && fs.readFileSync) {
+      const content = fs.readFileSync(path, "utf8");
+      this.importState(content);
     }
   }
 

@@ -34,7 +34,12 @@
   - [16. FormAutocompleteEngine](#16-formautocompleteengine)
 - [TypeScript Support](#typescript-support)
 - [Model Serialization](#model-serialization)
-- [Interactive Documentation Website](#interactive-documentation-website)
+- [Interactive Web Tools Studio](#interactive-web-tools-studio)
+  - [Live LM Playground](#live-lm-playground)
+  - [Document Trainer & Checkpoint Studio](#document-trainer--checkpoint-studio)
+  - [Console Autocomplete Injector](#console-autocomplete-injector)
+  - [Self-Attention Heatmap Visualizer](#self-attention-heatmap-visualizer)
+  - [FactServer & RAG Prompt Injector](#factserver--rag-prompt-injector)
 - [Testing & Building](#testing--building)
 - [Requirements](#requirements)
 - [Security](#security)
@@ -144,7 +149,7 @@ console.log("Generated:", generated);
 
 // 5. Use Fact Server for RAG Prompt Injection
 const factServer = new FactServer();
-factServer.addFact("library", "GrokJS Version", "1.2.0");
+factServer.addFact("library", "GrokJS Version", "1.2.1");
 factServer.addFact("author", "Created By", "PuterVision");
 
 const prompt = "Tell me about GrokJS Version and author.";
@@ -380,7 +385,7 @@ Copy-paste this one-liner into your browser Developer Console (`F12` -> `Console
     init();
   } else {
     const script = document.createElement("script");
-    script.src = "https://cdn.jsdelivr.net/npm/@putervision/grokjs@1.2.0/dist/grokjs.bundle.js";
+    script.src = "https://cdn.jsdelivr.net/npm/@putervision/grokjs@1.2.1/dist/grokjs.bundle.js";
     script.onload = init;
     document.head.appendChild(script);
   }
@@ -421,9 +426,9 @@ console.log(newLm.getVocabularySize());
 
 ---
 
-## Interactive Documentation Website
+## Interactive Web Tools Studio
 
-An interactive, single-page web documentation and live playground application is available in the `docs/` directory.
+An interactive, single-page web studio and documentation application is available in the [`docs/index.html`](docs/index.html) directory.
 
 To launch locally:
 
@@ -431,11 +436,19 @@ To launch locally:
 npx http-server docs -p 8080
 ```
 
-Open `http://localhost:8080` in your browser to experience:
+Open `http://localhost:8080` (or open [`docs/index.html`](docs/index.html) directly in any browser) to access the interactive web tools:
 
-- **Live LM Playground**: Train models in real-time in the browser, adjust temperature, top-k, top-p, and test text generation.
-- **Attention Visualizer**: View interactive attention heatmaps for any sequence.
-- **RAG Fact Server Demo**: Query key-value fact stores and observe prompt context augmentation live.
+### Web Tools Directory & Section Links
+
+| Web Tool / Studio Section                | Direct Link                                                                    | Key Features & Capabilities                                                                                                                                      |
+| ---------------------------------------- | ------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Live LM Playground**                   | [`docs/index.html#playground`](docs/index.html#playground)                     | Train N-gram models live in the browser, adjust Softmax Temperature (0.1–2.0) & Top-P Nucleus sliders, and test text generation.                                 |
+| **Document Trainer & Checkpoint Studio** | [`docs/index.html#doc-trainer`](docs/index.html#doc-trainer)                   | Drag & drop `.txt`, `.md`, `.csv`, `.json` files to train models, export JSON checkpoints, reload saved state, and test predictions with confidence percentages. |
+| **Console Autocomplete Injector**        | [`docs/index.html#autocomplete-snippet`](docs/index.html#autocomplete-snippet) | Step-by-step console injection tutorial with a one-click copy button for embedding self-learning form autocomplete into any webpage.                             |
+| **Self-Attention Heatmap Visualizer**    | [`docs/index.html#attention`](docs/index.html#attention)                       | Calculate and render color-coded 2D self-attention matrices to visualize query-key token focus weights in real time.                                             |
+| **FactServer & RAG Prompt Injector**     | [`docs/index.html#rag`](docs/index.html#rag)                                   | Query key-value fact stores and observe real-time Retrieval-Augmented Generation (RAG) prompt context augmentation.                                              |
+| **Architecture Modules Grid**            | [`docs/index.html#features`](docs/index.html#features)                         | Production-grade class directory highlighting all 16 modular NLP engines and vector tools.                                                                       |
+| **Node.js & TypeScript Quickstart**      | [`docs/index.html#quickstart`](docs/index.html#quickstart)                     | Copy-pasteable code examples for Node.js CommonJS, ES Modules, and TypeScript imports.                                                                           |
 
 ---
 

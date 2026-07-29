@@ -240,6 +240,18 @@ describe("General LanguageModel Tests", () => {
     if (realFs.existsSync(testPath)) realFs.unlinkSync(testPath);
   });
 
+  test("exportState and importState serialize and deserialize model state", () => {
+    const exported = languageModel.exportState();
+    expect(exported).toHaveProperty("version", "1.2.1");
+    expect(exported).toHaveProperty("vocabulary");
+    expect(Array.isArray(exported.vocabulary)).toBe(true);
+
+    const newModel = new LanguageModel();
+    newModel.importState(exported);
+    expect(newModel.getVocabularySize()).toBe(languageModel.getVocabularySize());
+    expect(newModel.predict("hello")).toEqual(languageModel.predict("hello"));
+  });
+
   // Test evaluation metrics
   test("model can be evaluated", () => {
     const testData = [

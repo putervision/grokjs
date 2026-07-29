@@ -22,6 +22,6 @@ describe("FormAutocompleteEngine Class with Pre-Training", () => {
   test("getConsoleSnippet returns executable snippet string", () => {
     const snippet = FormAutocompleteEngine.getConsoleSnippet();
     expect(typeof snippet).toBe("string");
-    expect(snippet).toContain("FormAutocompleteEngine.inject()");
+    expect(snippet).toContain("FormAutocompleteEngine.inject");
   });
 });

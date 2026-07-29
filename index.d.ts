@@ -60,6 +60,8 @@ declare module "@putervision/grokjs" {
     getVocabularySize(): number;
     evaluate(testData: Array<{ input: string; reference: string }>): EvaluationResult;
     bleuPrecision(candidate: string[], reference: string[]): number;
+    exportState(): Record<string, any>;
+    importState(state: Record<string, any> | string): void;
     saveModel(path: string): void;
     loadModel(path: string): void;
     updateModel(newText: string): void;

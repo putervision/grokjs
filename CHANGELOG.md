@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.2.1] - 2026-07-29
+
+### Added
+
+- **Browser Document Trainer & Checkpoint Studio**: Real-time browser document training (.txt, .md, .csv, .json) via `FileReader` API.
+- **`LanguageModel.exportState()` & `LanguageModel.importState()`**: Browser-native JSON model state export/import without requiring Node `fs`.
+- **Live Checkpoint Inference & Autocomplete Widget**: Interactive widget with real-time confidence percentage badges and embeddable code snippet.
+
+### Fixed
+
+- **Setup Modal Triggering**: Disabled default popup on website page load (`showSetup: false`) while keeping explicit popup on browser console snippet injection (`showSetup: true`).
+- **Responsive Layout**: Improved Document Trainer grid responsiveness and button layout on high-resolution desktop displays.
+
 ## [1.2.0] - 2026-07-29
 
 ### Fixed

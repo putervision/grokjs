@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>@putervision/grokjs — Modern JavaScript Language Model & NLP Suite v1.2.0</title>
+  <title>@putervision/grokjs — Modern JavaScript Language Model & NLP Suite v1.2.1</title>
   <meta name="description"
     content="High-performance, zero-dependency JavaScript & TypeScript Language Model (LM) suite supporting text generation, N-gram distributions, attention heatmaps, and RAG.">
   <meta name="keywords"
@@ -177,7 +177,7 @@
 
   <!-- Hero Section -->
   <section class="hero">
-    <div class="badge">RELEASE v1.2.0 • 16 MODULAR CLASSES • ZERO DEPENDENCIES</div>
+    <div class="badge">RELEASE v1.2.1 • 16 MODULAR CLASSES • ZERO DEPENDENCIES</div>
     <h1>
       <span class="hero-title-text">High-Performance JS Language Model & NLP Suite</span>
     </h1>
@@ -233,7 +233,117 @@
             <div class="metric-label">Generated Continuation</div>
             <div class="output-box" id="gen-output">Click 'Train Model & Generate Continuation' to execute live...</div>
           </div>
-          <div class="badge-roi">⚡ Powered by GrokJS v1.2.0 Engine</div>
+          <div class="badge-roi">⚡ Powered by GrokJS v1.2.1 Engine</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Document Trainer & Checkpoint Studio Section -->
+  <section id="doc-trainer" class="calculator-section" style="background: rgba(15, 23, 42, 0.6); border-y: 1px solid var(--border-color);">
+    <div class="container">
+      <div class="section-title">
+        <span class="badge">Browser Studio</span>
+        <h2>Document Trainer & Model Checkpoints</h2>
+        <p style="color: var(--text-secondary); max-width: 680px; margin: 0.5rem auto 0;">Train models directly in your browser by uploading text files, export checkpoints to JSON, or restore previously saved models.</p>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 1.75rem; align-items: stretch;">
+        <!-- Card 1: File Upload & Document Training -->
+        <div class="card" style="padding: 1.75rem; display: flex; flex-direction: column; justify-content: space-between;">
+          <div>
+            <div style="font-size: 1.1rem; font-weight: 700; color: #38bdf8; margin-bottom: 0.8rem; display: flex; align-items: center; gap: 0.5rem;">
+              <span>📂 1. Upload & Train Documents</span>
+            </div>
+            <p style="font-size: 0.88rem; color: var(--text-secondary); margin-bottom: 1rem;">Select or drop <code>.txt</code>, <code>.md</code>, <code>.json</code>, or <code>.csv</code> files to train the in-browser LM:</p>
+            
+            <div id="drop-zone" style="border: 2px dashed #38bdf8; border-radius: 12px; padding: 1.5rem 1rem; text-align: center; background: rgba(56, 189, 248, 0.05); cursor: pointer; transition: all 0.2s ease; margin-bottom: 1rem; min-height: 120px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+              <div style="font-size: 1.8rem; margin-bottom: 0.3rem;">📄</div>
+              <div style="font-size: 0.9rem; font-weight: 600; color: #f8fafc;">Drag & drop text documents here</div>
+              <div style="font-size: 0.78rem; color: #94a3b8; margin-top: 0.2rem;">or click to browse from device</div>
+              <input type="file" id="file-picker" accept=".txt,.md,.csv,.json" multiple style="display: none;">
+            </div>
+          </div>
+
+          <div id="upload-status" style="font-size: 0.85rem; color: #38bdf8; font-weight: 600; min-height: 24px; text-align: center;"></div>
+        </div>
+
+        <!-- Card 2: Model Status & Save/Load Checkpoints -->
+        <div class="card" style="padding: 1.75rem; display: flex; flex-direction: column; justify-content: space-between;">
+          <div>
+            <div style="font-size: 1.1rem; font-weight: 700; color: #38bdf8; margin-bottom: 0.8rem; display: flex; align-items: center; gap: 0.5rem;">
+              <span>💾 2. Save & Reload Checkpoints</span>
+            </div>
+            
+            <div style="background: #0f172a; border: 1px solid #334155; border-radius: 10px; padding: 1rem; margin-bottom: 1.2rem;">
+              <div style="font-size: 0.82rem; font-weight: 700; color: #94a3b8; margin-bottom: 0.5rem; text-transform: uppercase;">Current Model State:</div>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; text-align: center;">
+                <div style="background: rgba(56, 189, 248, 0.1); padding: 0.6rem; border-radius: 8px; border: 1px solid rgba(56, 189, 248, 0.2);">
+                  <div style="font-size: 1.25rem; font-weight: 800; color: #38bdf8;" id="studio-vocab-count">0</div>
+                  <div style="font-size: 0.75rem; color: #94a3b8;">Vocabulary Tokens</div>
+                </div>
+                <div style="background: rgba(56, 189, 248, 0.1); padding: 0.6rem; border-radius: 8px; border: 1px solid rgba(56, 189, 248, 0.2);">
+                  <div style="font-size: 1.25rem; font-weight: 800; color: #38bdf8;" id="studio-docs-count">0</div>
+                  <div style="font-size: 0.75rem; color: #94a3b8;">Documents Processed</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 0.75rem; width: 100%;">
+            <button id="export-model-btn" class="btn-primary" style="width: 100%; font-size: 0.88rem; padding: 0.75rem 0.5rem; font-weight: 700; white-space: nowrap; display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem;">
+              📥 Export JSON Checkpoint
+            </button>
+            <button id="import-model-trigger" class="btn-outline" style="width: 100%; font-size: 0.88rem; padding: 0.75rem 0.5rem; font-weight: 700; white-space: nowrap; display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem;">
+              📤 Load JSON Checkpoint
+            </button>
+            <input type="file" id="checkpoint-file-picker" accept=".json" style="display: none;">
+          </div>
+        </div>
+
+        <!-- Card 3: Interactive Checkpoint Inference & Autocomplete Widget -->
+        <div class="card" style="padding: 1.75rem; grid-column: 1 / -1;">
+          <div style="font-size: 1.1rem; font-weight: 700; color: #38bdf8; margin-bottom: 0.8rem; display: flex; align-items: center; justify-content: space-between;">
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+              <span>🤖 3. Live Checkpoint Inference & Autocomplete Widget</span>
+            </div>
+            <span id="checkpoint-active-badge" class="badge" style="background: rgba(34, 197, 94, 0.15); color: #22c55e; border-color: rgba(34, 197, 94, 0.3);">Active: Pre-trained Tech Model</span>
+          </div>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.25rem; margin-top: 1rem;">
+            <div>
+              <div class="form-group">
+                <label for="checkpoint-input-field">Type to test active checkpoint (Press Tab to accept top completion):</label>
+                <input type="text" id="checkpoint-input-field" class="form-control" placeholder="Type here... (e.g. 'GrokJS is an advanced')">
+              </div>
+
+              <div style="margin-top: 0.8rem;">
+                <label style="font-size: 0.82rem; font-weight: 700; color: #cbd5e1; display: block; margin-bottom: 0.4rem;">TOP PREDICTED COMPLETIONS:</label>
+                <div id="checkpoint-predictions-wrap" style="display: flex; gap: 0.5rem; flex-wrap: wrap; min-height: 32px; align-items: center;">
+                  <span style="font-size: 0.82rem; color: #94a3b8;">Start typing to generate predictions...</span>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <label style="font-size: 0.82rem; font-weight: 700; color: #cbd5e1; display: block; margin-bottom: 0.4rem;">HOW TO USE CHECKPOINTS IN YOUR APP:</label>
+              <div style="background: #0f172a; border: 1px solid #334155; border-radius: 8px; padding: 0.8rem 1rem;">
+                <pre style="margin: 0; color: #38bdf8; font-family: 'Fira Code', monospace; font-size: 0.8rem; line-height: 1.5; white-space: pre-wrap;">// 1. Load GrokJS UMD bundle
+const { LanguageModel, FormAutocompleteEngine } = GrokJS;
+const lm = new LanguageModel();
+
+// 2. Fetch and import exported JSON checkpoint
+fetch('grokjs_model_checkpoint.json')
+  .then(res => res.json())
+  .then(checkpoint => {
+    lm.importState(checkpoint);
+    
+    // 3. Attach self-learning autocomplete to DOM forms
+    FormAutocompleteEngine.inject({ model: lm });
+  });</pre>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -339,7 +449,7 @@
           </button>
         </div>
         <div style="padding: 1.25rem; background: var(--code-bg);">
-          <pre id="snippet-code" style="margin: 0; background: transparent; border: none; padding: 0; color: #38bdf8; font-family: 'Fira Code', monospace; font-size: 0.85rem; line-height: 1.6; white-space: pre-wrap; word-break: break-all;">(function(){if(window.__grokjs_autocomplete)return console.log("GrokJS Autocomplete active.");function init(){if(window.GrokJS){window.__grokjs_autocomplete=window.GrokJS.FormAutocompleteEngine.inject();console.log("%cGrokJS Self-Learning Autocomplete Injected! Press Tab or Right Arrow to accept completions.","color:#38bdf8;font-size:14px;font-weight:bold;");}else{console.error("GrokJS failed to load.");}}if(window.GrokJS){init();}else{const script=document.createElement('script');script.src='https://cdn.jsdelivr.net/npm/@putervision/grokjs@1.2.0/dist/grokjs.bundle.js';script.onload=init;document.head.appendChild(script);}})();</pre>
+          <pre id="snippet-code" style="margin: 0; background: transparent; border: none; padding: 0; color: #38bdf8; font-family: 'Fira Code', monospace; font-size: 0.85rem; line-height: 1.6; white-space: pre-wrap; word-break: break-all;">(function(){if(window.__grokjs_autocomplete)return console.log("GrokJS Autocomplete active.");function init(){if(window.GrokJS){window.__grokjs_autocomplete=window.GrokJS.FormAutocompleteEngine.inject({showSetup:true});console.log("%cGrokJS Self-Learning Autocomplete Injected! Press Tab or Right Arrow to accept completions.","color:#38bdf8;font-size:14px;font-weight:bold;");}else{console.error("GrokJS failed to load.");}}if(window.GrokJS){init();}else{const script=document.createElement('script');script.src='https://cdn.jsdelivr.net/npm/@putervision/grokjs@1.2.1/dist/grokjs.bundle.js';script.onload=init;document.head.appendChild(script);}})();</pre>
         </div>
       </div>
 
@@ -417,7 +527,7 @@
 
 // Initialize and train model
 const lm = new LanguageModel();
-lm.train("GrokJS v1.2.0 provides 16 modular NLP classes.");
+lm.train("GrokJS v1.2.1 provides 16 modular NLP classes.");
 
 // Text generation with nucleus sampling
 const output = InferenceEngine.generate(lm, "GrokJS", 10, {
@@ -434,7 +544,7 @@ console.log(output);</code></pre>
   <!-- Footer -->
   <footer style="border-top: 1px solid var(--border-color); padding: 3rem 0; text-align: center; color: var(--text-secondary); font-size: 0.9rem;">
     <div class="container">
-      <p>© 2026 PuterVision LLC • Released under the MIT License • Version 1.2.0</p>
+      <p>© 2026 PuterVision LLC • Released under the MIT License • Version 1.2.1</p>
     </div>
   </footer>
 
@@ -519,7 +629,7 @@ console.log(output);</code></pre>
         fs.addFact("physics", "speed of light", "299,792,458 m/s");
         fs.addFact("physics", "speed of sound", "343 m/s in air at 20C");
         fs.addFact("geography", "capital of france", "Paris");
-        fs.addFact("software", "grokjs version", "1.2.0");
+        fs.addFact("software", "grokjs version", "1.2.1");
         fs.addFact("author", "created by", "PuterVision LLC");
 
         const augmented = fs.augmentPrompt(query, 3);
@@ -603,6 +713,166 @@ console.log(output);</code></pre>
           } else if (e.key === "Escape") {
             suggestions = [];
             selectedIndex = -1;
+          }
+        });
+      }
+
+      // Document Trainer & Checkpoint Studio Logic
+      const dropZone = document.getElementById("drop-zone");
+      const filePicker = document.getElementById("file-picker");
+      const uploadStatus = document.getElementById("upload-status");
+      const vocabCountEl = document.getElementById("studio-vocab-count");
+      const docsCountEl = document.getElementById("studio-docs-count");
+      const exportBtn = document.getElementById("export-model-btn");
+      const importTrigger = document.getElementById("import-model-trigger");
+      const checkpointPicker = document.getElementById("checkpoint-file-picker");
+
+      let studioDocsProcessed = 0;
+      const studioModel = (window.GrokJS && window.GrokJS.LanguageModel) ? new window.GrokJS.LanguageModel() : null;
+
+      function updateStudioCounters() {
+        if (!studioModel) return;
+        if (vocabCountEl) vocabCountEl.textContent = studioModel.getVocabularySize().toLocaleString();
+        if (docsCountEl) docsCountEl.textContent = studioDocsProcessed.toLocaleString();
+      }
+
+      function trainFromFile(file) {
+        if (!file || !studioModel) return;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const content = e.target.result;
+          if (typeof content === "string" && content.trim()) {
+            studioModel.train(content);
+            studioDocsProcessed++;
+            updateStudioCounters();
+            if (uploadStatus) {
+              uploadStatus.textContent = `✅ Successfully trained on "${file.name}" (${(file.size / 1024).toFixed(1)} KB)`;
+              uploadStatus.style.color = "#22c55e";
+            }
+          }
+        };
+        reader.onerror = () => {
+          if (uploadStatus) {
+            uploadStatus.textContent = `❌ Error reading file "${file.name}"`;
+            uploadStatus.style.color = "#ef4444";
+          }
+        };
+        reader.readAsText(file);
+      }
+
+      if (dropZone && filePicker) {
+        dropZone.addEventListener("click", () => filePicker.click());
+        filePicker.addEventListener("change", (e) => {
+          const files = Array.from(e.target.files || []);
+          files.forEach(trainFromFile);
+        });
+
+        dropZone.addEventListener("dragover", (e) => {
+          e.preventDefault();
+          dropZone.style.borderColor = "#22c55e";
+          dropZone.style.background = "rgba(34, 197, 94, 0.1)";
+        });
+
+        dropZone.addEventListener("dragleave", () => {
+          dropZone.style.borderColor = "#38bdf8";
+          dropZone.style.background = "rgba(56, 189, 248, 0.05)";
+        });
+
+        dropZone.addEventListener("drop", (e) => {
+          e.preventDefault();
+          dropZone.style.borderColor = "#38bdf8";
+          dropZone.style.background = "rgba(56, 189, 248, 0.05)";
+          const files = Array.from(e.dataTransfer.files || []);
+          files.forEach(trainFromFile);
+        });
+      }
+
+      // Export JSON Checkpoint
+      if (exportBtn && studioModel) {
+        exportBtn.addEventListener("click", () => {
+          const state = studioModel.exportState();
+          const jsonStr = JSON.stringify(state, null, 2);
+          const blob = new Blob([jsonStr], { type: "application/json" });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = `grokjs_model_checkpoint_${Date.now()}.json`;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+          if (uploadStatus) {
+            uploadStatus.textContent = "📥 Exported JSON checkpoint!";
+            uploadStatus.style.color = "#38bdf8";
+          }
+        });
+      }
+
+      // Import JSON Checkpoint
+      if (importTrigger && checkpointPicker && studioModel) {
+        importTrigger.addEventListener("click", () => checkpointPicker.click());
+        checkpointPicker.addEventListener("change", (e) => {
+          const file = e.target.files[0];
+          if (!file) return;
+          const reader = new FileReader();
+          reader.onload = (evt) => {
+            try {
+              studioModel.importState(evt.target.result);
+              updateStudioCounters();
+              if (uploadStatus) {
+                uploadStatus.textContent = `📤 Restored model checkpoint from "${file.name}"!`;
+                uploadStatus.style.color = "#22c55e";
+              }
+            } catch (err) {
+              if (uploadStatus) {
+                uploadStatus.textContent = `❌ Invalid model JSON checkpoint file.`;
+                uploadStatus.style.color = "#ef4444";
+              }
+            }
+          };
+          reader.readAsText(file);
+        });
+      // Interactive Checkpoint Inference & Autocomplete Widget Logic
+      const checkpointField = document.getElementById("checkpoint-input-field");
+      const predictionsWrap = document.getElementById("checkpoint-predictions-wrap");
+
+      function updateCheckpointWidgetPredictions() {
+        if (!checkpointField || !predictionsWrap || !studioModel) return;
+        const text = checkpointField.value;
+        if (!text.trim()) {
+          predictionsWrap.innerHTML = '<span style="font-size: 0.82rem; color: #94a3b8;">Start typing to generate predictions...</span>';
+          return;
+        }
+
+        const predictionsWithConf = studioModel.predictWithConfidence ? studioModel.predictWithConfidence(text, 4) : [];
+        if (predictionsWithConf.length === 0) {
+          predictionsWrap.innerHTML = '<span style="font-size: 0.82rem; color: #94a3b8;">No predictions found for context</span>';
+          return;
+        }
+
+        let html = '';
+        predictionsWithConf.forEach((p, idx) => {
+          const pct = Math.round((p.probability || 0.1) * 100);
+          const bg = idx === 0 ? 'rgba(56, 189, 248, 0.2)' : 'rgba(15, 23, 42, 0.6)';
+          const border = idx === 0 ? '#38bdf8' : '#334155';
+          html += `<span style="background: ${bg}; border: 1px solid ${border}; color: #f8fafc; padding: 0.35rem 0.75rem; border-radius: 8px; font-size: 0.84rem; display: inline-flex; align-items: center; gap: 0.4rem; cursor: pointer;" onclick="document.getElementById('checkpoint-input-field').value += ' ${p.word}'; document.getElementById('checkpoint-input-field').focus();">
+            <strong>${p.word}</strong>
+            <span style="opacity: 0.7; font-size: 0.75rem;">${pct}%</span>
+          </span>`;
+        });
+        predictionsWrap.innerHTML = html;
+      }
+
+      if (checkpointField) {
+        checkpointField.addEventListener("input", updateCheckpointWidgetPredictions);
+        checkpointField.addEventListener("keydown", (e) => {
+          if ((e.key === "Tab" || e.key === "ArrowRight") && studioModel) {
+            const predictions = studioModel.predict(checkpointField.value, 1);
+            if (predictions.length > 0) {
+              e.preventDefault();
+              checkpointField.value = checkpointField.value.trim() + " " + predictions[0];
+              updateCheckpointWidgetPredictions();
+            }
           }
         });
       }
