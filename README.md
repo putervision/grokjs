@@ -3,7 +3,7 @@
 [![CI](https://github.com/putervision/grokjs/actions/workflows/ci.yml/badge.svg)](https://github.com/putervision/grokjs/actions/workflows/ci.yml)
 [![npm version](https://img.shields.io/npm/v/@putervision/grokjs.svg)](https://www.npmjs.com/package/@putervision/grokjs)
 [![license](https://img.shields.io/npm/l/@putervision/grokjs.svg)](LICENSE)
-[![tests](https://img.shields.io/badge/tests-164%20passed-brightgreen.svg)](#testing)
+[![tests](https://img.shields.io/badge/tests-165%20passed-brightgreen.svg)](#testing)
 
 > A high-performance, modular JavaScript & TypeScript implementation of Language Models (LMs), N-gram text generators, and Natural Language Processing (NLP) tools — inspired by state-of-the-art language architectures like xAI's Grok. _(Not affiliated with xAI)_.
 
@@ -190,7 +190,7 @@ const tokenizer = new Tokenizer({
 });
 
 const tokens = tokenizer.tokenize("It's 2026-07-29. The price is $10.99!");
-// ['it', 'is', '2023-02-04', 'the', 'price', 'is', '10.99']
+// ['it', 'is', '2026-07-29', 'the', 'price', 'is', '10.99']
 ```
 
 ### 3. Ngram
@@ -454,7 +454,7 @@ Open `http://localhost:8080` (or open [`docs/index.html`](docs/index.html) direc
 
 ## Testing & Building
 
-Run all 18 test suites (164 tests):
+Run all 18 test suites (165 tests):
 
 ```bash
 npm test
