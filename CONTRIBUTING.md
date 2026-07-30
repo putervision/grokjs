@@ -28,7 +28,7 @@ npm install
 # Run unit tests (Jest)
 npm test
 
-# Run build (Browserify UMD bundle)
+# Run build (esbuild bundle)
 npm run build
 
 # Check code formatting (Prettier)

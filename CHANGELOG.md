@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.2.2] - 2026-07-29
+
+### Fixed
+
+- **Document Trainer File Input & Drag-Drop**: Fixed recursive event bubbling issue when triggering file picker click handlers inside `#drop-zone`.
+- **Drag & Drop Handling**: Added `pointer-events: none` to inner drop zone text elements and proper drag event lifecycle management to prevent unexpected browser navigation.
+- **Dependency Vulnerabilities**: Fixed 20 high-severity security vulnerabilities (`brace-expansion` DoS) by adding explicit package overrides in `package.json`.
+- **License & Copyright Attribution**: Standardized copyright notice to PuterVision LLC across `LICENSE` and documentation files.
+
 ## [1.2.1] - 2026-07-29
 
 ### Added

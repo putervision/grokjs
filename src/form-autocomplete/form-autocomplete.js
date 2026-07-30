@@ -64,7 +64,7 @@ class FormAutocompleteEngine {
    * @return {string} - Standalone browser snippet
    */
   static getConsoleSnippet() {
-    return `(function(){if(window.__grokjs_autocomplete)return console.log("GrokJS Autocomplete active.");function init(){if(window.GrokJS){window.__grokjs_autocomplete=window.GrokJS.FormAutocompleteEngine.inject({showSetup:true});console.log("%cGrokJS Self-Learning Autocomplete Injected! Press Tab or Right Arrow to accept completions.","color:#38bdf8;font-size:14px;font-weight:bold;");}else{console.error("GrokJS failed to load.");}}if(window.GrokJS){init();}else{const script=document.createElement('script');script.src='https://cdn.jsdelivr.net/npm/@putervision/grokjs@1.2.1/dist/grokjs.bundle.js';script.onload=init;document.head.appendChild(script);}})();`;
+    return `(function(){if(window.__grokjs_autocomplete)return console.log("GrokJS Autocomplete active.");function init(){if(window.GrokJS){window.__grokjs_autocomplete=window.GrokJS.FormAutocompleteEngine.inject({showSetup:true});console.log("%cGrokJS Self-Learning Autocomplete Injected! Press Tab or Right Arrow to accept completions.","color:#38bdf8;font-size:14px;font-weight:bold;");}else{console.error("GrokJS failed to load.");}}if(window.GrokJS){init();}else{const script=document.createElement('script');script.src='https://cdn.jsdelivr.net/npm/@putervision/grokjs@1.2.2/dist/grokjs.bundle.js';script.onload=init;document.head.appendChild(script);}})();`;
   }
 
   /**

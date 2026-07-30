@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>@putervision/grokjs — Modern JavaScript Language Model & NLP Suite v1.2.1</title>
+  <title>@putervision/grokjs — Modern JavaScript Language Model & NLP Suite v1.2.2</title>
   <meta name="description"
     content="High-performance, zero-dependency JavaScript & TypeScript Language Model (LM) suite supporting text generation, N-gram distributions, attention heatmaps, and RAG.">
   <meta name="keywords"
@@ -177,7 +177,7 @@
 
   <!-- Hero Section -->
   <section class="hero">
-    <div class="badge">RELEASE v1.2.1 • 16 MODULAR CLASSES • ZERO DEPENDENCIES</div>
+    <div class="badge">RELEASE v1.2.2 • 16 MODULAR CLASSES • ZERO DEPENDENCIES</div>
     <h1>
       <span class="hero-title-text">High-Performance JS Language Model & NLP Suite</span>
     </h1>
@@ -233,7 +233,7 @@
             <div class="metric-label">Generated Continuation</div>
             <div class="output-box" id="gen-output">Click 'Train Model & Generate Continuation' to execute live...</div>
           </div>
-          <div class="badge-roi">⚡ Powered by GrokJS v1.2.1 Engine</div>
+          <div class="badge-roi">⚡ Powered by GrokJS v1.2.2 Engine</div>
         </div>
       </div>
     </div>
@@ -449,7 +449,7 @@ fetch('grokjs_model_checkpoint.json')
           </button>
         </div>
         <div style="padding: 1.25rem; background: var(--code-bg);">
-          <pre id="snippet-code" style="margin: 0; background: transparent; border: none; padding: 0; color: #38bdf8; font-family: 'Fira Code', monospace; font-size: 0.85rem; line-height: 1.6; white-space: pre-wrap; word-break: break-all;">(function(){if(window.__grokjs_autocomplete)return console.log("GrokJS Autocomplete active.");function init(){if(window.GrokJS){window.__grokjs_autocomplete=window.GrokJS.FormAutocompleteEngine.inject({showSetup:true});console.log("%cGrokJS Self-Learning Autocomplete Injected! Press Tab or Right Arrow to accept completions.","color:#38bdf8;font-size:14px;font-weight:bold;");}else{console.error("GrokJS failed to load.");}}if(window.GrokJS){init();}else{const script=document.createElement('script');script.src='https://cdn.jsdelivr.net/npm/@putervision/grokjs@1.2.1/dist/grokjs.bundle.js';script.onload=init;document.head.appendChild(script);}})();</pre>
+          <pre id="snippet-code" style="margin: 0; background: transparent; border: none; padding: 0; color: #38bdf8; font-family: 'Fira Code', monospace; font-size: 0.85rem; line-height: 1.6; white-space: pre-wrap; word-break: break-all;">(function(){if(window.__grokjs_autocomplete)return console.log("GrokJS Autocomplete active.");function init(){if(window.GrokJS){window.__grokjs_autocomplete=window.GrokJS.FormAutocompleteEngine.inject({showSetup:true});console.log("%cGrokJS Self-Learning Autocomplete Injected! Press Tab or Right Arrow to accept completions.","color:#38bdf8;font-size:14px;font-weight:bold;");}else{console.error("GrokJS failed to load.");}}if(window.GrokJS){init();}else{const script=document.createElement('script');script.src='https://cdn.jsdelivr.net/npm/@putervision/grokjs@1.2.2/dist/grokjs.bundle.js';script.onload=init;document.head.appendChild(script);}})();</pre>
         </div>
       </div>
 
@@ -527,7 +527,7 @@ fetch('grokjs_model_checkpoint.json')
 
 // Initialize and train model
 const lm = new LanguageModel();
-lm.train("GrokJS v1.2.1 provides 16 modular NLP classes.");
+lm.train("GrokJS v1.2.2 provides 16 modular NLP classes.");
 
 // Text generation with nucleus sampling
 const output = InferenceEngine.generate(lm, "GrokJS", 10, {
@@ -544,7 +544,7 @@ console.log(output);</code></pre>
   <!-- Footer -->
   <footer style="border-top: 1px solid var(--border-color); padding: 3rem 0; text-align: center; color: var(--text-secondary); font-size: 0.9rem;">
     <div class="container">
-      <p>© 2026 PuterVision LLC • Released under the MIT License • Version 1.2.1</p>
+      <p>© 2026 PuterVision LLC • Released under the MIT License • Version 1.2.2</p>
     </div>
   </footer>
 
@@ -629,7 +629,7 @@ console.log(output);</code></pre>
         fs.addFact("physics", "speed of light", "299,792,458 m/s");
         fs.addFact("physics", "speed of sound", "343 m/s in air at 20C");
         fs.addFact("geography", "capital of france", "Paris");
-        fs.addFact("software", "grokjs version", "1.2.1");
+        fs.addFact("software", "grokjs version", "1.2.2");
         fs.addFact("author", "created by", "PuterVision LLC");
 
         const augmented = fs.augmentPrompt(query, 3);

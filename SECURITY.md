@@ -27,6 +27,6 @@ We take security seriously. If you discover a security vulnerability, please rep
 This project uses:
 
 - `franc-cjs` — Language detection (read-only, no network calls)
-- `browserify`, `jest`, `prettier` — Dev dependencies only
+- `esbuild`, `jest`, `prettier` — Dev dependencies only
 
 All dependencies are audited regularly via `npm audit`.

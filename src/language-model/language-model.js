@@ -230,7 +230,7 @@ class LanguageModel {
     });
 
     return {
-      version: "1.2.1",
+      version: "1.2.2",
       maxN: this.maxN,
       ngrams: serializedNgrams,
       vocabulary: Array.from(this.vocabulary),

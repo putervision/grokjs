@@ -149,7 +149,7 @@ console.log("Generated:", generated);
 
 // 5. Use Fact Server for RAG Prompt Injection
 const factServer = new FactServer();
-factServer.addFact("library", "GrokJS Version", "1.2.1");
+factServer.addFact("library", "GrokJS Version", "1.2.2");
 factServer.addFact("author", "Created By", "PuterVision");
 
 const prompt = "Tell me about GrokJS Version and author.";
@@ -385,7 +385,7 @@ Copy-paste this one-liner into your browser Developer Console (`F12` -> `Console
     init();
   } else {
     const script = document.createElement("script");
-    script.src = "https://cdn.jsdelivr.net/npm/@putervision/grokjs@1.2.1/dist/grokjs.bundle.js";
+    script.src = "https://cdn.jsdelivr.net/npm/@putervision/grokjs@1.2.2/dist/grokjs.bundle.js";
     script.onload = init;
     document.head.appendChild(script);
   }
