@@ -3,7 +3,7 @@
 [![CI](https://github.com/putervision/grokjs/actions/workflows/ci.yml/badge.svg)](https://github.com/putervision/grokjs/actions/workflows/ci.yml)
 [![npm version](https://img.shields.io/npm/v/@putervision/grokjs.svg)](https://www.npmjs.com/package/@putervision/grokjs)
 [![license](https://img.shields.io/npm/l/@putervision/grokjs.svg)](LICENSE)
-[![tests](https://img.shields.io/badge/tests-193%20passed-brightgreen.svg)](#testing)
+[![tests](https://img.shields.io/badge/tests-194%20passed-brightgreen.svg)](#testing)
 
 > A high-performance, modular JavaScript & TypeScript implementation of Language Models (LMs), N-gram text generators, and Natural Language Processing (NLP) tools — inspired by state-of-the-art language architectures like xAI's Grok. _(Not affiliated with xAI)_.
 
@@ -149,7 +149,7 @@ console.log("Generated:", generated);
 
 // 5. Use Fact Server for RAG Prompt Injection
 const factServer = new FactServer();
-factServer.addFact("library", "GrokJS Version", "1.2.3");
+factServer.addFact("library", "GrokJS Version", "1.2.4");
 factServer.addFact("author", "Created By", "PuterVision");
 
 const prompt = "Tell me about GrokJS Version and author.";
@@ -385,7 +385,7 @@ Copy-paste this one-liner into your browser Developer Console (`F12` -> `Console
     init();
   } else {
     const script = document.createElement("script");
-    script.src = "https://cdn.jsdelivr.net/npm/@putervision/grokjs@1.2.3/dist/grokjs.bundle.js";
+    script.src = "https://cdn.jsdelivr.net/npm/@putervision/grokjs@1.2.4/dist/grokjs.bundle.js";
     script.onload = init;
     document.head.appendChild(script);
   }
@@ -454,7 +454,7 @@ Open `http://localhost:8080` (or open [`docs/index.html`](docs/index.html) direc
 
 ## Testing & Building
 
-Run all 18 test suites (193 tests):
+Run all 18 test suites (194 tests):
 
 ```bash
 npm test

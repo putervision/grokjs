@@ -230,7 +230,7 @@ class LanguageModel {
     });
 
     return {
-      version: "1.2.3",
+      version: "1.2.4",
       maxN: this.maxN,
       ngrams: serializedNgrams,
       vocabulary: Array.from(this.vocabulary),
@@ -243,42 +243,55 @@ class LanguageModel {
    * @param {Object|string} state - Model state object or JSON string
    */
   importState(state) {
-    const modelState = typeof state === "string" ? JSON.parse(state) : state;
-    if (!modelState) return;
+    if (!state) return;
+    let modelState;
+    try {
+      modelState = typeof state === "string" ? JSON.parse(state) : state;
+    } catch (err) {
+      throw new Error("GrokJS LanguageModel: Invalid JSON state string provided to importState");
+    }
 
-    this.maxN = modelState.maxN || 5;
-    this.ngram = new Ngram(this.maxN);
-    this.vocabulary = new Set(modelState.vocabulary || []);
-    this.context = modelState.context || {};
+    if (!modelState || typeof modelState !== "object") return;
+
+    const newMaxN = modelState.maxN || 5;
+    const newNgram = new Ngram(newMaxN);
+    const newVocab = new Set(modelState.vocabulary || []);
+    const newContext = modelState.context || {};
 
     if (Array.isArray(modelState.ngrams)) {
       modelState.ngrams.forEach((ngramObj, index) => {
-        if (index < this.ngram.ngrams.length) {
+        if (index < newNgram.ngrams.length && ngramObj && typeof ngramObj === "object") {
           const map = new Map();
           for (let [key, entries] of Object.entries(ngramObj)) {
             const counter = new Counter();
             if (Array.isArray(entries)) {
               entries.forEach(([word, count]) => {
                 counter.increment(word, count);
-                if (word) this.vocabulary.add(word);
+                if (word) newVocab.add(word);
               });
             } else if (typeof entries === "object" && entries !== null) {
               Object.entries(entries).forEach(([word, count]) => {
                 counter.increment(word, count);
-                if (word) this.vocabulary.add(word);
+                if (word) newVocab.add(word);
               });
             }
             map.set(key, counter);
             if (key) {
               key.split(" ").forEach((w) => {
-                if (w) this.vocabulary.add(w);
+                if (w) newVocab.add(w);
               });
             }
           }
-          this.ngram.ngrams[index] = map;
+          newNgram.ngrams[index] = map;
         }
       });
     }
+
+    // Atomic assignment once all data structures are safely instantiated
+    this.maxN = newMaxN;
+    this.ngram = newNgram;
+    this.vocabulary = newVocab;
+    this.context = newContext;
   }
 
   /**

@@ -257,7 +257,7 @@ describe("General LanguageModel Tests", () => {
 
   test("exportState and importState serialize and deserialize model state", () => {
     const exported = languageModel.exportState();
-    expect(exported).toHaveProperty("version", "1.2.3");
+    expect(exported).toHaveProperty("version", "1.2.4");
     expect(exported).toHaveProperty("vocabulary");
     expect(Array.isArray(exported.vocabulary)).toBe(true);
 

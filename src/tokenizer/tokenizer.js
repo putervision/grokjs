@@ -62,7 +62,7 @@ class Tokenizer {
     tokens = tokens.filter((token) => token && token.trim() !== "");
 
     if (this.handleContractions && (lang === "eng" || lang === "und")) {
-      const contractions = {
+      const contractions = Object.assign(Object.create(null), {
         "n't": "not",
         "'ve": "have",
         "'re": "are",
@@ -70,7 +70,7 @@ class Tokenizer {
         "'d": "would",
         "'ll": "will",
         "'m": "am",
-      };
+      });
 
       tokens = tokens.flatMap((token) => {
         for (let [contraction, expansion] of Object.entries(contractions)) {

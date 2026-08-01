@@ -22,6 +22,13 @@ class FactServer {
       return false;
     }
     const cat = category && typeof category === "string" ? category : "general";
+
+    // Deduplicate existing identical fact
+    const existing = this.facts.find(
+      (f) => f.category === cat && f.key === key && f.value === value
+    );
+    if (existing) return true;
+
     const combined = `${cat} ${key} ${value}`.toLowerCase();
     const tokens = this.tokenizer.tokenize(combined);
 
@@ -107,24 +114,27 @@ class FactServer {
    */
   deserialize(json) {
     try {
+      if (typeof json !== "string") return this;
       const facts = JSON.parse(json);
       if (Array.isArray(facts)) {
-        this.facts = facts.map((f, idx) => {
-          const cat = f.category || "general";
-          const key = f.key || "";
-          const val = f.value || "";
-          const combined = `${cat} ${key} ${val}`.toLowerCase();
-          return {
-            id: f.id || idx + 1,
-            category: cat,
-            key: key,
-            value: val,
-            tokens:
-              Array.isArray(f.tokens) && f.tokens.length > 0
-                ? f.tokens
-                : this.tokenizer.tokenize(combined),
-          };
-        });
+        this.facts = facts
+          .filter((f) => f && typeof f === "object")
+          .map((f, idx) => {
+            const cat = typeof f.category === "string" ? f.category : "general";
+            const key = typeof f.key === "string" ? f.key : "";
+            const val = typeof f.value === "string" ? f.value : "";
+            const combined = `${cat} ${key} ${val}`.toLowerCase();
+            return {
+              id: typeof f.id === "number" && f.id > 0 ? f.id : idx + 1,
+              category: cat,
+              key: key,
+              value: val,
+              tokens:
+                Array.isArray(f.tokens) && f.tokens.every((t) => typeof t === "string")
+                  ? f.tokens
+                  : this.tokenizer.tokenize(combined),
+            };
+          });
       }
     } catch (e) {
       console.warn("GrokJS FactServer: Could not deserialize facts", e);

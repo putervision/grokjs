@@ -1,5 +1,22 @@
 # Changelog
 
+## [1.2.4] - 2026-08-01
+
+### Fixed
+
+- **Duplicate DOM Event Listener Prevention & Teardown API**: Bound named listener callbacks to `_boundHandlers` with an attachment guard in `FormAutocompleteEngine.attachToDocument()` and added a `detach()` method to unbind listeners and remove injected DOM nodes on component teardown.
+- **Sandboxed Storage Security**: Moved `typeof localStorage` checks inside `try/catch` blocks in `FormAutocompleteEngine.loadState()` and `saveState()` to prevent unhandled `SecurityError` DOMExceptions in sandboxed iframes. Added `namespaceByPath` option to auto-namespace storage keys by `window.location.pathname`.
+- **NPM Package Payload Optimization**: Excluded `src/test/**` from the `files` array in `package.json`, removing test runner script `src/test/exercise.js` from the published npm package tarball.
+- **FactServer Input Sanitization & Deduplication**: Added non-null object type guards to `FactServer.deserialize()` and deduplicated identical fact insertions in `FactServer.addFact()`.
+- **Atomic Model State Import**: Refactored `LanguageModel.importState()` to parse and instantiate new model structures atomically before updating instance fields.
+- **Prototype Collision Safety**: Used `Object.create(null)` for `contractions` dictionary in `Tokenizer.tokenize()`.
+- **TypeScript Declarations (`index.d.ts`)**: Added `Counter<T = any>`, `seed` parameter to `Corpus.split()`, `detach()` to `FormAutocompleteEngine`, and `namespaceByPath` to `FormAutocompleteOptions`.
+
+### Changed
+
+- **Build Target Compatibility**: Configured `--target=es2020` in the `esbuild` build script.
+- **Documentation & Website Alignment**: Added Open Graph (`og:`) and Twitter Card meta tags to `docs/index.html` and updated hero badge dependency claims.
+
 ## [1.2.3] - 2026-08-01
 
 ### Fixed
@@ -66,3 +83,9 @@
 ### Security
 
 - Documented security characteristics in README (client-side only, no network calls, no eval).
+
+[1.2.4]: https://github.com/putervision/grokjs/compare/v1.2.3...v1.2.4
+[1.2.3]: https://github.com/putervision/grokjs/compare/v1.2.2...v1.2.3
+[1.2.2]: https://github.com/putervision/grokjs/compare/v1.2.1...v1.2.2
+[1.2.1]: https://github.com/putervision/grokjs/compare/v1.2.0...v1.2.1
+[1.2.0]: https://github.com/putervision/grokjs/releases/tag/v1.2.0

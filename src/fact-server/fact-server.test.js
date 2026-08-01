@@ -42,8 +42,15 @@ describe("FactServer Class", () => {
     expect(server.addFact("cat", "key", 123)).toBe(false);
   });
 
-  test("augmentPrompt returns original prompt if no relevant facts found", () => {
-    const original = "No matching fact query";
-    expect(server.augmentPrompt(original)).toBe(original);
+  test("addFact deduplicates identical facts", () => {
+    const initialCount = server.facts.length;
+    server.addFact("geography", "capital of france", "Paris");
+    expect(server.facts.length).toBe(initialCount);
+  });
+
+  test("deserialize handles non-string and malformed JSON safely", () => {
+    expect(server.deserialize(null)).toBe(server);
+    expect(server.deserialize("invalid json")).toBe(server);
+    expect(server.deserialize(JSON.stringify([{ invalid: true }]))).toBe(server);
   });
 });

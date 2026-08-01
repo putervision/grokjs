@@ -1,13 +1,13 @@
 declare module "@putervision/grokjs" {
-  export class Counter {
-    constructor(initial?: any[] | Record<string, number>);
-    increment(item: any, n?: number): void;
-    decrement(item: any, n?: number): void;
-    get(item: any): number;
+  export class Counter<T = any> {
+    constructor(initial?: T[] | Record<string, number>);
+    increment(item: T, n?: number): void;
+    decrement(item: T, n?: number): void;
+    get(item: T): number;
     total(): number;
-    mostCommon(n?: number): Array<[any, number]>;
-    elements(): any[];
-    subtract(other: Counter): Counter;
+    mostCommon(n?: number): Array<[T, number]>;
+    elements(): T[];
+    subtract(other: Counter<T>): Counter<T>;
     toString(): string;
   }
 
@@ -165,7 +165,8 @@ declare module "@putervision/grokjs" {
     split(
       trainRatio?: number,
       valRatio?: number,
-      testRatio?: number
+      testRatio?: number,
+      seed?: number
     ): {
       train: string[];
       val: string[];
@@ -265,7 +266,9 @@ declare module "@putervision/grokjs" {
     model?: LanguageModel;
     autoSave?: boolean;
     storageKey?: string;
+    namespaceByPath?: boolean;
     maxSuggestions?: number;
+    showSetup?: boolean;
   }
 
   export class FormAutocompleteEngine {
@@ -273,6 +276,7 @@ declare module "@putervision/grokjs" {
     static inject(options?: FormAutocompleteOptions): FormAutocompleteEngine;
     static getConsoleSnippet(): string;
     attachToDocument(): void;
+    detach(): void;
     loadState(): boolean;
     saveState(): void;
     preloadCorpora(presetKeys?: string[], customText?: string): void;

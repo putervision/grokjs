@@ -31,15 +31,21 @@ class FormAutocompleteEngine {
     this.options = {
       autoSave: true,
       storageKey: "grokjs_form_lm",
+      namespaceByPath: false,
       maxSuggestions: 3,
       showSetup: false,
       ...options,
     };
 
+    if (this.options.namespaceByPath && typeof window !== "undefined" && window.location) {
+      this.options.storageKey += `_${window.location.pathname.replace(/[^a-zA-Z0-9_]/g, "_")}`;
+    }
+
     this.model = options.model || new LanguageModel();
     this.activeElement = null;
     this.tooltipElement = null;
     this.modalElement = null;
+    this._boundHandlers = null;
 
     const isFirstRun = this.loadState();
 
@@ -64,7 +70,7 @@ class FormAutocompleteEngine {
    * @return {string} - Standalone browser snippet
    */
   static getConsoleSnippet() {
-    return `(function(){if(window.__grokjs_autocomplete)return console.log("GrokJS Autocomplete active.");function init(){if(window.GrokJS){window.__grokjs_autocomplete=window.GrokJS.FormAutocompleteEngine.inject({showSetup:true});console.log("%cGrokJS Self-Learning Autocomplete Injected! Press Tab or Right Arrow to accept completions.","color:#38bdf8;font-size:14px;font-weight:bold;");}else{console.error("GrokJS failed to load.");}}if(window.GrokJS){init();}else{const script=document.createElement('script');script.src='https://cdn.jsdelivr.net/npm/@putervision/grokjs@1.2.3/dist/grokjs.bundle.js';script.onload=init;document.head.appendChild(script);}})();`;
+    return `(function(){if(window.__grokjs_autocomplete)return console.log("GrokJS Autocomplete active.");function init(){if(window.GrokJS){window.__grokjs_autocomplete=window.GrokJS.FormAutocompleteEngine.inject({showSetup:true});console.log("%cGrokJS Self-Learning Autocomplete Injected! Press Tab or Right Arrow to accept completions.","color:#38bdf8;font-size:14px;font-weight:bold;");}else{console.error("GrokJS failed to load.");}}if(window.GrokJS){init();}else{const script=document.createElement('script');script.src='https://cdn.jsdelivr.net/npm/@putervision/grokjs@1.2.4/dist/grokjs.bundle.js';script.onload=init;document.head.appendChild(script);}})();`;
   }
 
   /**
@@ -161,14 +167,46 @@ class FormAutocompleteEngine {
    * Attaches event listeners to document for auto-detecting and binding inputs.
    */
   attachToDocument() {
-    if (typeof document === "undefined") return;
+    if (typeof document === "undefined" || this._boundHandlers) return;
 
     this._createTooltip();
 
-    document.addEventListener("focusin", (e) => this._onFocusIn(e));
-    document.addEventListener("input", (e) => this._onInput(e));
-    document.addEventListener("keydown", (e) => this._onKeyDown(e));
-    document.addEventListener("focusout", (e) => this._onFocusOut(e));
+    this._boundHandlers = {
+      focusin: (e) => this._onFocusIn(e),
+      input: (e) => this._onInput(e),
+      keydown: (e) => this._onKeyDown(e),
+      focusout: (e) => this._onFocusOut(e),
+    };
+
+    for (const [evt, fn] of Object.entries(this._boundHandlers)) {
+      document.addEventListener(evt, fn);
+    }
+  }
+
+  /**
+   * Detaches event listeners from document and cleans up injected DOM elements.
+   */
+  detach() {
+    if (typeof document === "undefined") return;
+
+    if (this._boundHandlers) {
+      for (const [evt, fn] of Object.entries(this._boundHandlers)) {
+        document.removeEventListener(evt, fn);
+      }
+      this._boundHandlers = null;
+    }
+
+    if (this.tooltipElement) {
+      this.tooltipElement.remove();
+      this.tooltipElement = null;
+    }
+
+    if (this.modalElement) {
+      this.modalElement.remove();
+      this.modalElement = null;
+    }
+
+    this.activeElement = null;
   }
 
   /**
@@ -224,8 +262,10 @@ class FormAutocompleteEngine {
    * Saves current full model state (all n-grams, vocabulary, context) to localStorage.
    */
   saveState() {
-    if (typeof localStorage === "undefined" || !this.options.autoSave) return;
+    if (!this.options.autoSave) return;
     try {
+      if (typeof localStorage === "undefined" || !localStorage) return;
+
       const serializedNgrams = this.model.ngram.ngrams.map((map) => {
         const obj = {};
         for (let [key, counter] of map.entries()) {

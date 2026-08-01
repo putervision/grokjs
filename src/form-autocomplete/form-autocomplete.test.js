@@ -146,4 +146,22 @@ describe("FormAutocompleteEngine Class with Full Lifecycle & DOM Mocking", () =>
     const injected = FormAutocompleteEngine.inject({ autoSave: false });
     expect(injected).toBeInstanceOf(FormAutocompleteEngine);
   });
+
+  test("detach cleans up bound handlers and injected DOM elements", () => {
+    const instance = FormAutocompleteEngine.inject({ autoSave: false });
+    expect(instance._boundHandlers).not.toBeNull();
+
+    instance.detach();
+    expect(instance._boundHandlers).toBeNull();
+    expect(instance.tooltipElement).toBeNull();
+  });
+
+  test("constructor supports namespaceByPath option", () => {
+    const namespaced = new FormAutocompleteEngine({
+      autoSave: false,
+      namespaceByPath: true,
+      storageKey: "test_key",
+    });
+    expect(namespaced.options.storageKey).toBeDefined();
+  });
 });
