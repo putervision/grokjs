@@ -49,6 +49,8 @@
 
 ---
 
+<a id="overview--architecture"></a>
+
 ## Overview & Architecture
 
 `@putervision/grokjs` is designed to provide developers with zero-dependency (or minimal dependency) client-side and server-side NLP capabilities in pure JavaScript. It equips Node.js and browser applications with fast text generation, tokenization, n-gram probability distributions, semantic word embeddings, attention visualization, and RAG fact injection.
@@ -79,6 +81,8 @@
 
 ---
 
+<a id="installation"></a>
+
 ## Installation
 
 ```bash
@@ -98,6 +102,8 @@ Or run browser bundle directly:
 ```
 
 ---
+
+<a id="module-summary-16-modular-classes"></a>
 
 ## Module Summary (16 Modular Classes)
 
@@ -121,6 +127,8 @@ Or run browser bundle directly:
 | `FormAutocompleteEngine`  | Autocomplete    | Self-learning DOM form autocomplete engine with continuous localStorage persistence. |
 
 ---
+
+<a id="quick-start"></a>
 
 ## Quick Start
 
@@ -159,7 +167,11 @@ console.log("Augmented RAG Prompt:", augmentedPrompt);
 
 ---
 
+<a id="class-references--detailed-api"></a>
+
 ## Class References & Detailed API
+
+<a id="1-languagemodel"></a>
 
 ### 1. LanguageModel
 
@@ -178,6 +190,8 @@ The primary facade class wrapping `Ngram`, `InferenceEngine`, and `EvaluationMet
 
 > **Note:** `saveModel()` and `loadModel()` use Node.js `fs` module and are only available in Node.js environments. For browser usage, serialize manually using `JSON.stringify()` and `localStorage`.
 
+<a id="2-tokenizer"></a>
+
 ### 2. Tokenizer
 
 Handles multi-lingual regex tokenization, date/timestamp preservation, contractions, and special tokens.
@@ -193,6 +207,8 @@ const tokens = tokenizer.tokenize("It's 2026-07-29. The price is $10.99!");
 // ['it', 'is', '2026-07-29', 'the', 'price', 'is', '10.99']
 ```
 
+<a id="3-ngram"></a>
+
 ### 3. Ngram
 
 Maintains n-gram frequency trees up to `maxN` = 5.
@@ -203,6 +219,8 @@ const ngram = new Ngram(3);
 ngram.learn("hello world how are you");
 console.log(ngram.predictNextWord("hello world"));
 ```
+
+<a id="4-counter"></a>
 
 ### 4. Counter
 
@@ -215,6 +233,8 @@ console.log(counter.get("b")); // 3
 console.log(counter.mostCommon(2)); // [['b', 3], ['a', 2]]
 ```
 
+<a id="5-normalizer"></a>
+
 ### 5. Normalizer
 
 Clean and standardize raw text strings.
@@ -224,6 +244,8 @@ const { Normalizer } = require("@putervision/grokjs");
 const norm = new Normalizer({ stripAccents: true, lowerCase: true });
 console.log(norm.normalize("  Café   CON  Leche!  ")); // 'cafe con leche!'
 ```
+
+<a id="6-vocabulary"></a>
 
 ### 6. Vocabulary
 
@@ -237,6 +259,8 @@ const ids = vocab.encode(["apple", "unknown_word"]); // [4, 1] (1 is <unk>)
 console.log(vocab.decode(ids)); // ['apple', '<unk>']
 ```
 
+<a id="7-frequencydistribution"></a>
+
 ### 7. FrequencyDistribution
 
 Tracks N-gram joint and conditional token frequencies.
@@ -248,6 +272,8 @@ fd.record("hello", "world", 5);
 console.log(fd.count("hello", "world")); // 5
 ```
 
+<a id="8-probabilitydistribution"></a>
+
 ### 8. ProbabilityDistribution
 
 Computes MLE, Laplace (Add-k) smoothing, Stupid Backoff, and softmax temperature sampling.
@@ -258,6 +284,8 @@ const pd = new ProbabilityDistribution(fd);
 console.log(pd.laplace("hello", "world", 1, 1000));
 console.log(pd.sample("hello", 0.7));
 ```
+
+<a id="9-markovchain"></a>
 
 ### 9. MarkovChain
 
@@ -271,6 +299,8 @@ console.log(mc.getTransitionMatrix());
 console.log(mc.generatePath("the", 4));
 ```
 
+<a id="10-corpus"></a>
+
 ### 10. Corpus
 
 Text dataset loader, sentence extractor, type-token ratio (TTR) stats, and train/val/test splits.
@@ -283,6 +313,8 @@ corpus.addDocument("Doc 2 content...");
 console.log(corpus.getStats()); // { documentCount, sentenceCount, tokenCount, typeTokenRatio }
 const splits = corpus.split(0.8, 0.1, 0.1);
 ```
+
+<a id="11-embedding"></a>
 
 ### 11. Embedding
 
@@ -298,6 +330,8 @@ console.log(emb.cosineSimilarity("king", "queen"));
 console.log(emb.mostSimilar("king", 3));
 ```
 
+<a id="12-attentionmechanism"></a>
+
 ### 12. AttentionMechanism
 
 Computes self-attention weights and 2D heatmap matrix.
@@ -311,6 +345,8 @@ console.log(attn.computeWeights(["grok", "language", "model"]));
 console.log(attn.getHeatmap(["grok", "language", "model"]));
 ```
 
+<a id="13-evaluationmetrics"></a>
+
 ### 13. EvaluationMetrics
 
 Standardized NLP benchmark metrics: Perplexity, BLEU, ROUGE-L, F1, Accuracy.
@@ -320,6 +356,8 @@ const { EvaluationMetrics } = require("@putervision/grokjs");
 console.log(EvaluationMetrics.bleu(["hello", "world"], ["hello", "world"])); // 1.0
 console.log(EvaluationMetrics.rougeL(["the", "quick", "fox"], ["the", "fast", "fox"]));
 ```
+
+<a id="14-inferenceengine"></a>
 
 ### 14. InferenceEngine
 
@@ -340,6 +378,8 @@ const output = InferenceEngine.generate(lm, "grokjs", 5, {
 const beamOutput = InferenceEngine.beamSearch(lm, "grokjs", 4, 3);
 ```
 
+<a id="15-factserver"></a>
+
 ### 15. FactServer
 
 RAG key-value fact store and prompt context injector.
@@ -351,6 +391,8 @@ fs.addFact("science", "speed of light", "299,792,458 m/s");
 console.log(fs.queryFacts("What is the speed of light?"));
 console.log(fs.augmentPrompt("What is the speed of light?"));
 ```
+
+<a id="16-formautocompleteengine"></a>
 
 ### 16. FormAutocompleteEngine & Copy-Paste Webpage Autocomplete
 
@@ -394,6 +436,8 @@ Copy-paste this one-liner into your browser Developer Console (`F12` -> `Console
 
 ---
 
+<a id="typescript-support"></a>
+
 ## TypeScript Support
 
 Full TypeScript definitions are included out of the box (`index.d.ts`):
@@ -409,6 +453,8 @@ const text: string = lm.generateText("TypeScript", 5, opts);
 ```
 
 ---
+
+<a id="model-serialization"></a>
 
 ## Model Serialization
 
@@ -426,6 +472,8 @@ console.log(newLm.getVocabularySize());
 
 ---
 
+<a id="interactive-web-tools-studio"></a>
+
 ## Interactive Web Tools Studio
 
 An interactive, single-page web studio and documentation application is available in the [`docs/index.html`](docs/index.html) directory.
@@ -440,17 +488,19 @@ Open `http://localhost:8080` (or open [`docs/index.html`](docs/index.html) direc
 
 ### Web Tools Directory & Section Links
 
-| Web Tool / Studio Section                | Direct Link                                                                    | Key Features & Capabilities                                                                                                                                      |
-| ---------------------------------------- | ------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Live LM Playground**                   | [`docs/index.html#playground`](docs/index.html#playground)                     | Train N-gram models live in the browser, adjust Softmax Temperature (0.1–2.0) & Top-P Nucleus sliders, and test text generation.                                 |
-| **Document Trainer & Checkpoint Studio** | [`docs/index.html#doc-trainer`](docs/index.html#doc-trainer)                   | Drag & drop `.txt`, `.md`, `.csv`, `.json` files to train models, export JSON checkpoints, reload saved state, and test predictions with confidence percentages. |
-| **Console Autocomplete Injector**        | [`docs/index.html#autocomplete-snippet`](docs/index.html#autocomplete-snippet) | Step-by-step console injection tutorial with a one-click copy button for embedding self-learning form autocomplete into any webpage.                             |
-| **Self-Attention Heatmap Visualizer**    | [`docs/index.html#attention`](docs/index.html#attention)                       | Calculate and render color-coded 2D self-attention matrices to visualize query-key token focus weights in real time.                                             |
-| **FactServer & RAG Prompt Injector**     | [`docs/index.html#rag`](docs/index.html#rag)                                   | Query key-value fact stores and observe real-time Retrieval-Augmented Generation (RAG) prompt context augmentation.                                              |
-| **Architecture Modules Grid**            | [`docs/index.html#features`](docs/index.html#features)                         | Production-grade class directory highlighting all 16 modular NLP engines and vector tools.                                                                       |
-| **Node.js & TypeScript Quickstart**      | [`docs/index.html#quickstart`](docs/index.html#quickstart)                     | Copy-pasteable code examples for Node.js CommonJS, ES Modules, and TypeScript imports.                                                                           |
+| Web Tool / Studio Section                                                                 | Direct Link                                                                    | Key Features & Capabilities                                                                                                                                      |
+| ----------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| <a id="live-lm-playground"></a> **Live LM Playground**                                    | [`grokjs.com/#playground`](https://grokjs.com/#playground)                     | Train N-gram models live in the browser, adjust Softmax Temperature (0.1–2.0) & Top-P Nucleus sliders, and test text generation.                                 |
+| <a id="document-trainer--checkpoint-studio"></a> **Document Trainer & Checkpoint Studio** | [`grokjs.com/#doc-trainer`](https://grokjs.com/#doc-trainer)                   | Drag & drop `.txt`, `.md`, `.csv`, `.json` files to train models, export JSON checkpoints, reload saved state, and test predictions with confidence percentages. |
+| <a id="console-autocomplete-injector"></a> **Console Autocomplete Injector**              | [`grokjs.com/#autocomplete-snippet`](https://grokjs.com/#autocomplete-snippet) | Step-by-step console injection tutorial with a one-click copy button for embedding self-learning form autocomplete into any webpage.                             |
+| <a id="self-attention-heatmap-visualizer"></a> **Self-Attention Heatmap Visualizer**      | [`grokjs.com/#attention`](https://grokjs.com/#attention)                       | Calculate and render color-coded 2D self-attention matrices to visualize query-key token focus weights in real time.                                             |
+| <a id="factserver--rag-prompt-injector"></a> **FactServer & RAG Prompt Injector**         | [`grokjs.com/#rag`](https://grokjs.com/#rag)                                   | Query key-value fact stores and observe real-time Retrieval-Augmented Generation (RAG) prompt context augmentation.                                              |
+| **Architecture Modules Grid**                                                             | [`grokjs.com/#features`](https://grokjs.com/#features)                         | Production-grade class directory highlighting all 16 modular NLP engines and vector tools.                                                                       |
+| **Node.js & TypeScript Quickstart**                                                       | [`grokjs.com/#quickstart`](https://grokjs.com/#quickstart)                     | Copy-pasteable code examples for Node.js CommonJS, ES Modules, and TypeScript imports.                                                                           |
 
 ---
+
+<a id="testing--building"></a>
 
 ## Testing & Building
 
@@ -468,6 +518,8 @@ npm run build
 
 ---
 
+<a id="requirements"></a>
+
 ## Requirements
 
 - Node.js >= 16.0.0
@@ -475,6 +527,8 @@ npm run build
 - Modern browser (ES6+ support)
 
 ---
+
+<a id="security"></a>
 
 ## Security
 
@@ -492,11 +546,15 @@ For vulnerability reports, see [SECURITY.md](SECURITY.md).
 
 ---
 
+<a id="changelog"></a>
+
 ## Changelog
 
 See [CHANGELOG.md](CHANGELOG.md) for version history.
 
 ---
+
+<a id="contributing"></a>
 
 ## Contributing
 
@@ -504,11 +562,15 @@ We welcome contributions! See [CONTRIBUTING.md](CONTRIBUTING.md) for setup instr
 
 ---
 
+<a id="code-of-conduct"></a>
+
 ## Code of Conduct
 
 See [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).
 
 ---
+
+<a id="license"></a>
 
 ## License
 
