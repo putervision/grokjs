@@ -236,12 +236,12 @@ declare module "@putervision/grokjs" {
       length?: number,
       beamWidth?: number
     ): string;
-    static *generateStream(
+    static generateStream(
       model: LanguageModel,
       prompt: string,
       length?: number,
       options?: GenerationOptions
-    ): AsyncGenerator<string>;
+    ): Generator<string, void, unknown>;
   }
 
   export class FactServer {
@@ -273,10 +273,10 @@ declare module "@putervision/grokjs" {
     static inject(options?: FormAutocompleteOptions): FormAutocompleteEngine;
     static getConsoleSnippet(): string;
     attachToDocument(): void;
-    loadState(): void;
+    loadState(): boolean;
     saveState(): void;
-    preloadCorpora(presetKeys?: string[], customNotes?: string): void;
+    preloadCorpora(presetKeys?: string[], customText?: string): void;
     showSetupModal(onComplete?: () => void): void;
-    predict(text: string): string | null;
+    predict(text: string, maxSuggestions?: number): string[];
   }
 }

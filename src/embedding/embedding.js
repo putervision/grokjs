@@ -87,7 +87,11 @@ class Embedding {
    * @return {number[]} - Normalized vector
    */
   getVector(word) {
-    const wordLower = typeof word === "string" ? word.toLowerCase() : "";
+    if (typeof word !== "string") return this._pseudoRandomVector("");
+    if (this.vectors.has(word)) {
+      return this.vectors.get(word);
+    }
+    const wordLower = word.toLowerCase();
     if (this.vectors.has(wordLower)) {
       return this.vectors.get(wordLower);
     }
@@ -125,14 +129,14 @@ class Embedding {
    * @return {Array<{ word: string, similarity: number }>} - Ranked similarity results
    */
   mostSimilar(word, topN = 5) {
-    const target = typeof word === "string" ? word.toLowerCase() : "";
+    const targetLower = typeof word === "string" ? word.toLowerCase() : "";
     const results = [];
 
     for (const [w] of this.vectors) {
-      if (w !== target) {
+      if (w.toLowerCase() !== targetLower) {
         results.push({
           word: w,
-          similarity: this.cosineSimilarity(target, w),
+          similarity: this.cosineSimilarity(word, w),
         });
       }
     }
@@ -170,12 +174,14 @@ class Embedding {
     const normVec = mag > 0 ? targetVec.map((v) => v / mag) : targetVec;
 
     const excludeSet = new Set(
-      [...(positive || []), ...(negative || [])].map((w) => w.toLowerCase())
+      [...(positive || []), ...(negative || [])].map((w) =>
+        typeof w === "string" ? w.toLowerCase() : ""
+      )
     );
     const results = [];
 
     for (const [w, v] of this.vectors) {
-      if (!excludeSet.has(w)) {
+      if (!excludeSet.has(w.toLowerCase())) {
         let dot = 0;
         for (let i = 0; i < this.dimensions; i++) dot += normVec[i] * v[i];
         results.push({ word: w, similarity: dot });

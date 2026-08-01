@@ -1,5 +1,21 @@
 # Changelog
 
+## [1.2.3] - 2026-08-01
+
+### Fixed
+
+- **`Counter.elements()` Float Safety**: Added `Math.floor(Math.max(0, count))` safeguard to prevent `RangeError: Invalid array length` when handling fractional/float counts.
+- **`ProbabilityDistribution.stupidBackoff()` Penalty**: Fixed backoff match probability scaling to properly apply `alpha` backoff penalty per context shift level and removed hardcoded `0.4` factor compounding.
+- **`Embedding` Case Consistency**: Standardized exact and lowercased key lookups across `build()`, `getVector()`, `mostSimilar()`, and `vectorArithmetic()`.
+- **`InferenceEngine.beamSearch()` Length Normalization**: Applied sequence length normalization `(score / Math.pow(len, 0.75))` to candidate scores to prevent long sequence penalties.
+- **`FactServer` Jaccard Relevance & Deserialization**: Replaced length-penalized relevance with Jaccard token set intersection-over-union scoring, and fixed ID auto-increment tracking on `deserialize()`.
+- **TypeScript Declarations (`index.d.ts`)**: Corrected ambient generator declaration for `InferenceEngine.generateStream()` and fixed `FormAutocompleteEngine.loadState()` and `predict()` return signatures.
+- **Corpus Reproducibility**: Added optional `seed` parameter to `Corpus.split()` for deterministic pseudo-random shuffles.
+
+### Added
+
+- **Expanded Test Suite**: Raised overall test line and statement coverage to **≥ 95%** with 193 unit and integration tests passing cleanly.
+
 ## [1.2.2] - 2026-07-29
 
 ### Fixed

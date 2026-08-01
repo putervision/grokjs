@@ -122,4 +122,17 @@ describe("Counter", () => {
       "Decrement must be a finite non-negative number"
     );
   });
+
+  test("constructor initializes from object dictionary", () => {
+    const objCounter = new Counter({ x: 10, y: 20 });
+    expect(objCounter.get("x")).toBe(10);
+    expect(objCounter.get("y")).toBe(20);
+  });
+
+  test("elements handles fractional float counts safely", () => {
+    const floatCounter = new Counter();
+    floatCounter.increment("item", 2.5);
+    const elements = floatCounter.elements();
+    expect(elements).toEqual(["item", "item"]);
+  });
 });

@@ -50,28 +50,30 @@ class ProbabilityDistribution {
   stupidBackoff(context, word, alpha = 0.4) {
     const tokens = context ? context.trim().split(/\s+/) : [];
     let currentContext = tokens.join(" ");
+    let backoffFactor = 1.0;
 
     while (currentContext.length > 0 || tokens.length > 0) {
       const count = this.freqDist.count(currentContext, word);
       const total = this.freqDist.contextTotal(currentContext);
 
       if (count > 0 && total > 0) {
-        return count / total;
+        return backoffFactor * (count / total);
       }
 
       if (tokens.length <= 1) {
+        backoffFactor *= alpha;
         // Fall back to unigram count across all contexts
         const unigramCount = this.freqDist.count("", word);
         const unigramTotal = this.freqDist.contextTotal("");
         if (unigramCount > 0 && unigramTotal > 0) {
-          return alpha * (unigramCount / unigramTotal);
+          return backoffFactor * (unigramCount / unigramTotal);
         }
-        return alpha * 0.0001; // Epsilon fallback
+        return backoffFactor * 0.0001; // Epsilon fallback
       }
 
       tokens.shift(); // Backoff to shorter context tail
       currentContext = tokens.join(" ");
-      alpha *= 0.4;
+      backoffFactor *= alpha;
     }
 
     return 0.0001;

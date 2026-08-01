@@ -75,7 +75,7 @@ class InferenceEngine {
     const initialTokens = model.tokenize ? model.tokenize(prompt) : prompt.split(/\s+/);
     const maxN = model.maxN || 5;
 
-    let beams = [{ tokens: [...initialTokens], text: prompt, score: 0.0 }];
+    let beams = [{ tokens: [...initialTokens], text: prompt, logProbSum: 0.0, score: 0.0 }];
 
     for (let step = 0; step < length; step++) {
       const candidates = [];
@@ -87,10 +87,16 @@ class InferenceEngine {
         for (const word of predictions) {
           const prob = model.getProbability ? model.getProbability(word, prefix) : 0.1;
           const logProb = Math.log(prob > 0 ? prob : Number.EPSILON);
+          const newLogProbSum = beam.logProbSum + logProb;
+          const addedLen = beam.tokens.length - initialTokens.length + 1;
+          // Length-normalized score
+          const normScore = newLogProbSum / Math.pow(addedLen, 0.75);
+
           candidates.push({
             tokens: [...beam.tokens, word],
             text: beam.text + " " + word,
-            score: beam.score + logProb,
+            logProbSum: newLogProbSum,
+            score: normScore,
           });
         }
       }

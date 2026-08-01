@@ -43,4 +43,18 @@ describe("Corpus Class", () => {
     const firstDocs = splits.map((s) => s.train[0]);
     expect(new Set(firstDocs).size).toBeGreaterThan(1);
   });
+
+  test("split produces reproducible splits when seed is provided", () => {
+    for (let i = 0; i < 10; i++) corpus.addDocument(`Doc ${i}`);
+    const splitA = corpus.split(0.6, 0.2, 0.2, 12345);
+    const splitB = corpus.split(0.6, 0.2, 0.2, 12345);
+    expect(splitA.train).toEqual(splitB.train);
+  });
+
+  test("addDocument ignores empty or non-string inputs", () => {
+    const initialLen = corpus.documents.length;
+    corpus.addDocument("");
+    corpus.addDocument(null);
+    expect(corpus.documents.length).toBe(initialLen);
+  });
 });

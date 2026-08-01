@@ -125,4 +125,8 @@ describe("Tokenizer", () => {
   test("Throws error for non-string input", () => {
     expect(() => tokenizer.tokenize(123)).toThrow("Input must be a string");
   });
+
+  test("detokenize returns empty string for non-array input", () => {
+    expect(tokenizer.detokenize(null)).toBe("");
+  });
 });

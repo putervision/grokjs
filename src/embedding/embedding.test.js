@@ -34,4 +34,26 @@ describe("Embedding Class", () => {
     const res = embedding.vectorArithmetic(["king", "woman"], ["man"], 3);
     expect(res.length).toBeGreaterThan(0);
   });
+
+  test("build ignores non-array corpus and handles dimension overrides", () => {
+    embedding.build(null);
+    expect(embedding.vectors.size).toBeGreaterThan(0);
+
+    embedding.build(["test sentence"], 8);
+    expect(embedding.dimensions).toBe(8);
+    expect(embedding.getVector("test").length).toBe(8);
+  });
+
+  test("getVector returns pseudo random vector for unknown or non-string input", () => {
+    const vecUnknown = embedding.getVector("nonexistent_word_xyz");
+    expect(vecUnknown.length).toBe(embedding.dimensions);
+
+    const vecNull = embedding.getVector(null);
+    expect(vecNull.length).toBe(embedding.dimensions);
+  });
+
+  test("cosineSimilarity returns 0 for zero-magnitude vectors", () => {
+    const zeroSim = embedding.cosineSimilarity(null, null);
+    expect(typeof zeroSim).toBe("number");
+  });
 });

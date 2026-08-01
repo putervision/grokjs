@@ -25,4 +25,25 @@ describe("FactServer Class", () => {
     const results = server.queryFacts("unrelated query about astrophysics");
     expect(results).toEqual([]);
   });
+
+  test("serialize and deserialize store and restore fact state", () => {
+    const json = server.serialize();
+    expect(typeof json).toBe("string");
+    expect(json).toContain("france");
+
+    const newServer = new FactServer();
+    newServer.deserialize(json);
+    expect(newServer.facts.length).toBe(2);
+    expect(newServer.queryFacts("france")[0].value).toBe("Paris");
+  });
+
+  test("addFact rejects invalid input and returns false", () => {
+    expect(server.addFact("", null, "val")).toBe(false);
+    expect(server.addFact("cat", "key", 123)).toBe(false);
+  });
+
+  test("augmentPrompt returns original prompt if no relevant facts found", () => {
+    const original = "No matching fact query";
+    expect(server.augmentPrompt(original)).toBe(original);
+  });
 });

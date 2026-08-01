@@ -80,7 +80,10 @@ class Counter {
   elements() {
     let result = [];
     for (let [item, count] of this.counter) {
-      result.push(...Array(count).fill(item));
+      const validCount = Math.floor(Math.max(0, count || 0));
+      if (validCount > 0) {
+        result.push(...Array(validCount).fill(item));
+      }
     }
     return result;
   }

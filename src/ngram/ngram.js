@@ -21,17 +21,8 @@ class Ngram {
    * @return {string[]} An array of tokens
    */
   tokenize(text) {
-    // Convert text to lowercase, trim whitespace, remove non-word characters except apostrophes,
-    //  and split on whitespace
-    // let tokens = text
-    //   .toLowerCase()
-    //   .trim()
-    //   .replace(/[^\w\s']|_/g, "")
-    //   .split(/\s+/);
-    // // Check if the result is empty or falsy after tokenization
-
     const tokens = this.tokenizer.tokenize(text);
-    if (!tokens || tokens == "") return [];
+    if (!tokens || tokens.length === 0) return [];
     if (this.debug) console.log("Tokenized text:", tokens);
     return tokens;
   }

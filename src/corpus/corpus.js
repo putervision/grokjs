@@ -79,15 +79,29 @@ class Corpus {
    * @param {number} [testRatio=0.1] - Ratio of documents for testing
    * @return {Object} - Object containing train, val, and test document arrays
    */
-  split(trainRatio = 0.8, valRatio = 0.1, testRatio = 0.1) {
+  split(trainRatio = 0.8, valRatio = 0.1, testRatio = 0.1, seed = null) {
     const total = trainRatio + valRatio + testRatio;
     const normTrain = trainRatio / total;
     const normVal = valRatio / total;
 
+    let rng = Math.random;
+    if (seed !== null && seed !== undefined) {
+      let s =
+        typeof seed === "number"
+          ? seed
+          : String(seed)
+              .split("")
+              .reduce((acc, ch) => acc + ch.charCodeAt(0), 0);
+      rng = () => {
+        s = (s * 9301 + 49297) % 233280;
+        return s / 233280;
+      };
+    }
+
     // Fisher-Yates shuffle to randomize document order
     const documents = [...this.documents];
     for (let i = documents.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
+      const j = Math.floor(rng() * (i + 1));
       [documents[i], documents[j]] = [documents[j], documents[i]];
     }
 

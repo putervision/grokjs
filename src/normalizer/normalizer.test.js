@@ -34,4 +34,11 @@ describe("Normalizer Class", () => {
   test("throws error for non-string input", () => {
     expect(() => normalizer.normalize(123)).toThrow();
   });
+
+  test("handles non-string inputs safely in helper methods", () => {
+    expect(normalizer.stripAccents(null)).toBe("");
+    expect(normalizer.caseFold(undefined)).toBe("");
+    expect(normalizer.cleanUnicode(123)).toBe("");
+    expect(normalizer.removeExtraWhitespace(null)).toBe("");
+  });
 });

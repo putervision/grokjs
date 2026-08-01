@@ -18,18 +18,23 @@ class FactServer {
    * @param {string} value - Fact content statement
    */
   addFact(category, key, value) {
-    if (!key || !value) return;
-    const cat = category || "general";
+    if (!key || typeof key !== "string" || !value || typeof value !== "string") {
+      return false;
+    }
+    const cat = category && typeof category === "string" ? category : "general";
     const combined = `${cat} ${key} ${value}`.toLowerCase();
     const tokens = this.tokenizer.tokenize(combined);
 
-    this.facts.push({
-      id: this.facts.length + 1,
+    const maxId = this.facts.reduce((max, f) => (f.id && f.id > max ? f.id : max), 0);
+    const newFact = {
+      id: maxId + 1,
       category: cat,
       key: key,
       value: value,
       tokens: tokens,
-    });
+    };
+    this.facts.push(newFact);
+    return true;
   }
 
   /**
@@ -48,13 +53,16 @@ class FactServer {
 
     const scored = [];
     for (const fact of this.facts) {
+      const factTokenSet = new Set(fact.tokens || []);
       let matches = 0;
-      for (const token of fact.tokens) {
+      for (const token of factTokenSet) {
         if (queryTokens.has(token)) matches++;
       }
 
       if (matches > 0) {
-        const relevance = matches / (queryTokens.size + fact.tokens.length);
+        // Jaccard similarity: intersection over union
+        const unionSize = queryTokens.size + factTokenSet.size - matches;
+        const relevance = unionSize > 0 ? matches / unionSize : 0;
         scored.push({
           category: fact.category,
           key: fact.key,
@@ -101,7 +109,22 @@ class FactServer {
     try {
       const facts = JSON.parse(json);
       if (Array.isArray(facts)) {
-        this.facts = facts;
+        this.facts = facts.map((f, idx) => {
+          const cat = f.category || "general";
+          const key = f.key || "";
+          const val = f.value || "";
+          const combined = `${cat} ${key} ${val}`.toLowerCase();
+          return {
+            id: f.id || idx + 1,
+            category: cat,
+            key: key,
+            value: val,
+            tokens:
+              Array.isArray(f.tokens) && f.tokens.length > 0
+                ? f.tokens
+                : this.tokenizer.tokenize(combined),
+          };
+        });
       }
     } catch (e) {
       console.warn("GrokJS FactServer: Could not deserialize facts", e);

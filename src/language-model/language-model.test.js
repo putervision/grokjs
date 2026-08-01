@@ -176,12 +176,27 @@ describe("LanguageModel", () => {
     expect(explanation).toContain("hello world");
   });
 
-  //   test("adaptToLanguage logs adaptation", () => {
-  //     languageModel.adaptToLanguage("English");
-  //     expect(console.log).toHaveBeenCalledWith(
-  //       "Adapting model to language: English",
-  //     );
-  //   });
+  test("healthCheck returns status details", () => {
+    languageModel.train("hello world");
+    const status = languageModel.healthCheck();
+    expect(status.isTrained).toBe(true);
+    expect(status.ready).toBe(true);
+    expect(status.vocabularySize).toBe(2);
+  });
+
+  test("predictWithConfidence returns confidence scores", () => {
+    languageModel.train("hello world");
+    const preds = languageModel.predictWithConfidence("hello", 2);
+    expect(Array.isArray(preds)).toBe(true);
+    expect(preds.length).toBeGreaterThan(0);
+    expect(preds[0]).toHaveProperty("probability");
+    expect(preds[0]).toHaveProperty("ngramLevel");
+  });
+
+  test("bleuPrecision returns 1-gram precision", () => {
+    const prec = languageModel.bleuPrecision(["hello", "world"], ["hello", "world"]);
+    expect(prec).toBeGreaterThan(0);
+  });
 });
 
 describe("General LanguageModel Tests", () => {
@@ -242,7 +257,7 @@ describe("General LanguageModel Tests", () => {
 
   test("exportState and importState serialize and deserialize model state", () => {
     const exported = languageModel.exportState();
-    expect(exported).toHaveProperty("version", "1.2.2");
+    expect(exported).toHaveProperty("version", "1.2.3");
     expect(exported).toHaveProperty("vocabulary");
     expect(Array.isArray(exported.vocabulary)).toBe(true);
 

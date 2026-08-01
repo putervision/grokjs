@@ -36,5 +36,29 @@ describe("EvaluationMetrics Class", () => {
     lm.train("hello world testing perplexity");
     const perp = EvaluationMetrics.perplexity(lm, "hello world");
     expect(perp).toBeGreaterThan(0);
+
+    expect(EvaluationMetrics.perplexity(null, "text")).toBeNaN();
+    expect(EvaluationMetrics.perplexity(lm, "")).toBeNaN();
+  });
+
+  test("handles empty or non-array inputs cleanly across metrics", () => {
+    expect(EvaluationMetrics.bleu(null, [])).toBe(0);
+    expect(EvaluationMetrics.bleu([], ["test"])).toBe(0);
+    expect(EvaluationMetrics.rougeL(null, [])).toBe(0);
+    expect(EvaluationMetrics.rougeL([], [])).toBe(0);
+
+    expect(EvaluationMetrics.precisionRecallF1(null, [])).toEqual({
+      precision: 0,
+      recall: 0,
+      f1Score: 0,
+    });
+    expect(EvaluationMetrics.precisionRecallF1([], ["a"])).toEqual({
+      precision: 0,
+      recall: 0,
+      f1Score: 0,
+    });
+
+    expect(EvaluationMetrics.accuracy(null, [])).toBe(0);
+    expect(EvaluationMetrics.accuracy([], ["a"])).toBe(0);
   });
 });
